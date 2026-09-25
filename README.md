@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# May Mặc Phú Thành Nam (PTN)
 
-## Getting Started
+Next.js + PostgreSQL + Upstash Redis + Vercel Blob.
 
-First, run the development server:
+## Local nhanh
 
 ```bash
+npm install
+npm run db:up          # Postgres Docker :5433
+npx prisma migrate deploy
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Site: http://localhost:3000  
+- Admin: http://localhost:3000/admin — `admin@phuthanhnam.vn` / `admin123`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Kiến trúc Vercel (chuẩn)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+Next.js (Vercel)
+  ├── PostgreSQL  → dữ liệu CMS (Neon / Vercel Postgres)
+  ├── Upstash Redis → cache trang + rate-limit form
+  └── Vercel Blob → lưu ảnh / techpack
+```
 
-## Learn More
+Chi tiết: [docs/DEPLOY-VERCEL.md](docs/DEPLOY-VERCEL.md)
 
-To learn more about Next.js, take a look at the following resources:
+Env mẫu: [.env.example](.env.example)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Redis dùng để làm gì?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Không dùng Redis cho | Dùng Redis cho |
+|----------------------|----------------|
+| Lưu Post/User quan hệ | Cache workflow / gallery / posts |
+| Thay PostgreSQL | Rate-limit `/api/contact` |
+| | Invalidate sau khi admin sửa CMS |
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Script | Mô tả |
+|--------|--------|
+| `npm run db:up` | Docker Postgres |
+| `npm run db:deploy` | `prisma migrate deploy` (prod) |
+| `npm run db:seed` | Seed admin + data mẫu |
+| `npm run build` | `prisma generate && next build` |
