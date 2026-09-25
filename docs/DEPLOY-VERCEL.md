@@ -66,7 +66,14 @@ npx vercel
 
 Build command (đã có trong `vercel.json`):
 ```
-prisma generate && prisma migrate deploy && next build
+node scripts/copy-tinymce.js && prisma generate && prisma migrate deploy && next build
+```
+
+Hoặc chạy script sau khi đã `gh auth login` + `vercel login` + env đã set:
+
+```bash
+bash scripts/deploy-github-vercel.sh
+PROD_SMOKE_URL=https://your-app.vercel.app npm run test:smoke
 ```
 
 Sau deploy lần đầu, seed admin (chạy 1 lần từ máy local trỏ `DATABASE_URL` prod):
