@@ -50,17 +50,30 @@ export function ImageDropzone({
   accept?: string;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
   const isVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(value) || accept.includes("video");
 
   async function upload(file: File) {
     setUploading(true);
+    setError("");
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: form });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = (await res.json()) as { url: string };
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        url?: string;
+        error?: string;
+      };
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || `Upload thất bại (${res.status})`);
+      }
       onChange(data.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload thất bại");
     } finally {
       setUploading(false);
     }
@@ -121,6 +134,9 @@ export function ImageDropzone({
         onChange={(e) => onChange(e.target.value)}
       />
       <p className="mt-3 text-xs font-semibold text-ink/40">{hint}</p>
+      {error && (
+        <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>
+      )}
       {value && (
         <button
           type="button"

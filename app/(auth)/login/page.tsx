@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
   title: "Đăng nhập Admin | PTN CMS",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl || "/admin";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#f3f4f6] px-5">
       <div className="w-full max-w-md rounded-2xl border border-black/8 bg-white p-8 shadow-sm">
@@ -23,9 +29,7 @@ export default function LoginPage() {
         <p className="mt-2 text-sm font-semibold text-ink/55">
           Đăng nhập để quản lý nội dung website
         </p>
-        <Suspense fallback={<p className="mt-8 text-sm">Đang tải…</p>}>
-          <LoginForm />
-        </Suspense>
+        <LoginForm callbackUrl={callbackUrl} />
       </div>
     </div>
   );

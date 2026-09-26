@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
-export function LoginForm() {
+export function LoginForm({ callbackUrl = "/admin" }: { callbackUrl?: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 

@@ -39,8 +39,13 @@ export async function POST(request: Request) {
 
       const file = form.get("attachment");
       if (file instanceof File && file.size > 0) {
-        const uploaded = await uploadFile(file, "techpacks");
-        attachmentUrl = uploaded.url;
+        try {
+          const uploaded = await uploadFile(file, "techpacks");
+          attachmentUrl = uploaded.url;
+        } catch (uploadError) {
+          console.error("[contact] attachment upload failed", uploadError);
+          // Continue without attachment so the inquiry still saves
+        }
       }
     } else {
       payload = await request.json();

@@ -40,10 +40,16 @@ export async function uploadFile(
   const ext = path.extname(file.name) || ".bin";
   const filename = `${folder}/${randomUUID()}${ext}`;
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  // Guard against corrupted env values (CLI prompt leftovers like "\ny" / "\\ny")
+  const rawBlob = process.env.BLOB_READ_WRITE_TOKEN ?? "";
+  const blobToken =
+    rawBlob.match(/vercel_blob_rw_[A-Za-z0-9]+/)?.[0] ||
+    rawBlob.replace(/\\n/g, "\n").split(/\r?\n/)[0]?.trim() ||
+    "";
+  if (blobToken) {
     const blob = await put(filename, file, {
       access: "public",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: blobToken,
     });
     return { url: blob.url, pathname: blob.pathname, provider: "blob" };
   }
