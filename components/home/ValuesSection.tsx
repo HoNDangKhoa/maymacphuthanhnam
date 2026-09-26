@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { trustFeatures } from "@/lib/data";
-import { cn } from "@/lib/utils";
 
 export function ValuesSection() {
   return (
@@ -36,28 +35,13 @@ export function ValuesSection() {
           {trustFeatures.map((item) => (
             <div
               key={item.title}
-              className={cn(
-                "flex flex-col justify-between p-6 md:p-7",
-                item.featured
-                  ? "bg-ink text-paper"
-                  : "border border-[var(--line)] bg-paper",
-              )}
+              className="group flex flex-col justify-between border border-[var(--line)] bg-paper p-6 transition duration-300 hover:border-transparent hover:bg-ink hover:text-paper md:p-7"
             >
               <div>
-                <h3
-                  className={cn(
-                    "font-display text-xl font-semibold",
-                    item.featured ? "text-paper" : "text-ink",
-                  )}
-                >
+                <h3 className="font-display text-xl font-semibold text-ink transition group-hover:text-paper">
                   {item.title}
                 </h3>
-                <p
-                  className={cn(
-                    "mt-3 text-sm leading-relaxed",
-                    item.featured ? "text-paper/65" : "text-ink/60",
-                  )}
-                >
+                <p className="mt-3 text-sm leading-relaxed text-ink/60 transition group-hover:text-paper/70">
                   {item.description}
                 </p>
               </div>

@@ -18,10 +18,30 @@ export const navItems = [
 ] as const;
 
 export const stats = [
-  { value: 11, suffix: "+", label: "Năm kinh nghiệm" },
-  { value: 10000, suffix: "+", label: "Đơn hàng" },
-  { value: 100, suffix: "+", label: "Đối tác" },
-  { value: 200, suffix: "+", label: "Nhân viên" },
+  {
+    value: 11,
+    suffix: "+",
+    label: "Năm kinh nghiệm",
+    caption: "Đồng hành sản xuất may mặc ổn định, chuẩn xuất khẩu.",
+  },
+  {
+    value: 10000,
+    suffix: "+",
+    label: "Mã hàng",
+    caption: "Đa dạng style — blazer, coat, jacket, pant và hơn thế.",
+  },
+  {
+    value: 100,
+    suffix: "+",
+    label: "Đối tác",
+    caption: "Thương hiệu trong nước và quốc tế tin tưởng lựa chọn.",
+  },
+  {
+    value: 200,
+    suffix: "+",
+    label: "Nhân sự",
+    caption: "Đội ngũ lành nghề từ phòng mẫu đến hoàn thiện.",
+  },
 ];
 
 export const trustFeatures = [
@@ -29,25 +49,21 @@ export const trustFeatures = [
     title: "Lợi ích khách hàng",
     description:
       "Tối ưu chi phí, kiểm soát chất lượng AQL và minh bạch tiến độ từng đơn hàng.",
-    featured: false,
   },
   {
     title: "Phương châm chúng tôi",
     description:
       "Chính xác trong form — quy mô đủ lớn — chất lượng ổn định xuyên suốt lô hàng.",
-    featured: false,
   },
   {
     title: "Khuyến khích sáng tạo",
     description:
       "Phòng mẫu đồng hành phát triển prototype, hỗ trợ brand thử nghiệm design mới.",
-    featured: false,
   },
   {
     title: "Fast Turnaround",
     description:
       "Lịch sản xuất linh hoạt, rút ngắn lead time cho mùa hàng và drop mới.",
-    featured: true,
   },
 ];
 

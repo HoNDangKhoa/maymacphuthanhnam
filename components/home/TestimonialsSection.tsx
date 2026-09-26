@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { testimonials } from "@/lib/data";
-import { cn } from "@/lib/utils";
 
 export function TestimonialsSection() {
-  const [active, setActive] = useState(0);
-
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -22,71 +18,42 @@ export function TestimonialsSection() {
         </p>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
-          {testimonials.map((t, index) => {
-            const featured = index === 1;
-            const selected = active === index;
-
-            return (
-              <blockquote
-                key={t.author}
-                onMouseEnter={() => setActive(index)}
-                onFocus={() => setActive(index)}
-                tabIndex={0}
-                className={cn(
-                  "relative flex min-h-[300px] cursor-default flex-col rounded-lg p-7 outline-none transition md:min-h-[340px] md:p-8",
-                  featured
-                    ? "bg-[#1a1a1a] text-white"
-                    : "bg-[#f4f1ec] text-ink",
-                  selected && "ring-2 ring-[#5dade2]",
-                )}
+          {testimonials.map((t) => (
+            <blockquote
+              key={t.author}
+              tabIndex={0}
+              className="group relative flex min-h-[300px] cursor-default flex-col rounded-lg bg-[#f4f1ec] p-7 text-ink outline-none transition duration-300 hover:bg-[#1a1a1a] hover:text-white focus-visible:bg-[#1a1a1a] focus-visible:text-white md:min-h-[340px] md:p-8"
+            >
+              <span
+                className="mb-5 block text-4xl leading-none font-semibold text-accent"
+                aria-hidden
               >
-                <span
-                  className="mb-5 block text-4xl leading-none font-semibold text-accent"
-                  aria-hidden
-                >
-                  “
-                </span>
+                “
+              </span>
 
-                <p
-                  className={cn(
-                    "flex-1 text-[15px] leading-relaxed font-semibold md:text-base",
-                    featured ? "text-white/90" : "text-ink/80",
-                  )}
-                >
-                  “{t.quote}”
-                </p>
+              <p className="flex-1 text-[15px] leading-relaxed font-semibold text-ink/80 transition group-hover:text-white/90 group-focus-visible:text-white/90 md:text-base">
+                “{t.quote}”
+              </p>
 
-                <footer className="mt-8 flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white",
-                      t.avatarTone === "accent" ? "bg-accent" : "bg-[#2a2a2a]",
-                    )}
-                  >
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p
-                      className={cn(
-                        "text-sm font-semibold",
-                        featured ? "text-white" : "text-ink",
-                      )}
-                    >
-                      {t.author}
-                    </p>
-                    <p
-                      className={cn(
-                        "text-xs font-semibold",
-                        featured ? "text-white/55" : "text-ink/50",
-                      )}
-                    >
-                      {t.role}
-                    </p>
-                  </div>
-                </footer>
-              </blockquote>
-            );
-          })}
+              <footer className="mt-8 flex items-center gap-3">
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white transition group-hover:bg-accent group-focus-visible:bg-accent ${
+                    t.avatarTone === "accent" ? "bg-accent" : "bg-[#2a2a2a]"
+                  }`}
+                >
+                  {t.initials}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-ink transition group-hover:text-white group-focus-visible:text-white">
+                    {t.author}
+                  </p>
+                  <p className="text-xs font-semibold text-ink/50 transition group-hover:text-white/55 group-focus-visible:text-white/55">
+                    {t.role}
+                  </p>
+                </div>
+              </footer>
+            </blockquote>
+          ))}
         </div>
       </div>
     </section>
