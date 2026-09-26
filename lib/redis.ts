@@ -7,13 +7,18 @@ import { Redis } from "@upstash/redis";
 const globalForRedis = globalThis as unknown as { redis?: Redis | null };
 
 function createRedis(): Redis | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Vercel Upstash marketplace injects KV_REST_API_*; local/manual uses UPSTASH_*
+  const rawUrl =
+    process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
+  const rawToken =
+    process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
+  const url = rawUrl.trim();
+  const token = rawToken.trim();
 
-  if (!url || !token) {
+  if (!url.startsWith("https://") || !token) {
     if (process.env.NODE_ENV === "production") {
       console.warn(
-        "[redis] Missing UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN — cache disabled",
+        "[redis] Missing valid KV_REST_API_* / UPSTASH_REDIS_REST_* — cache disabled",
       );
     }
     return null;

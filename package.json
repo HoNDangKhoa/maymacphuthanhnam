@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/copy-tinymce.js && next dev",
-    "build": "node scripts/copy-tinymce.js && prisma generate && next build",
+    "build": "node scripts/copy-tinymce.js && prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",

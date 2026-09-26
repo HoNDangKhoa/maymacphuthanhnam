@@ -1,23 +1,7 @@
-import { auth } from "@/auth";
-import { NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-  const isLogin = req.nextUrl.pathname === "/login";
-
-  if (isAdminRoute && !isLoggedIn) {
-    const url = new URL("/login", req.nextUrl.origin);
-    url.searchParams.set("callbackUrl", req.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
-  if (isLogin && isLoggedIn) {
-    return NextResponse.redirect(new URL("/admin", req.nextUrl.origin));
-  }
-
-  return NextResponse.next();
-});
+export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: ["/admin/:path*", "/login"],

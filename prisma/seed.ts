@@ -12,7 +12,7 @@ import { defaultBannerData, newMediaItem } from "../lib/branding";
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function main() {
   const email = process.env.ADMIN_EMAIL ?? "admin@phuthanhnam.vn";
   const password = process.env.ADMIN_PASSWORD ?? "admin123";
   const passwordHash = await bcrypt.hash(password, 10);
@@ -282,11 +282,17 @@ async function main() {
   console.log(`   Admin: ${email} / ${password}`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const isCli =
+  typeof process !== "undefined" &&
+  Boolean(process.argv[1]?.match(/prisma[/\\]seed\.(ts|js)$/));
+
+if (isCli) {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
