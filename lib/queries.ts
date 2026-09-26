@@ -163,13 +163,91 @@ export async function getActiveGallery() {
 }
 
 export async function getSiteSettings() {
+  const { defaultBannerData, parseBannerData } = await import("@/lib/branding");
+  const defaults = defaultBannerData();
+
+  const withHomeDefaults = <T extends Record<string, unknown>>(row: T) => ({
+    ...row,
+    homeStats: Array.isArray(row.homeStats) && row.homeStats.length
+      ? row.homeStats
+      : defaults.homeStats,
+    homeTrust:
+      row.homeTrust && typeof row.homeTrust === "object"
+        ? {
+            ...defaults.homeTrust,
+            ...(row.homeTrust as object),
+            features:
+              Array.isArray((row.homeTrust as { features?: unknown }).features) &&
+              ((row.homeTrust as { features: unknown[] }).features.length > 0)
+                ? (row.homeTrust as { features: typeof defaults.homeTrust.features })
+                    .features
+                : defaults.homeTrust.features,
+          }
+        : defaults.homeTrust,
+    homeTestimonials:
+      row.homeTestimonials && typeof row.homeTestimonials === "object"
+        ? {
+            ...defaults.homeTestimonials,
+            ...(row.homeTestimonials as object),
+            items:
+              Array.isArray(
+                (row.homeTestimonials as { items?: unknown }).items,
+              ) &&
+              ((row.homeTestimonials as { items: unknown[] }).items.length > 0)
+                ? (
+                    row.homeTestimonials as {
+                      items: typeof defaults.homeTestimonials.items;
+                    }
+                  ).items
+                : defaults.homeTestimonials.items,
+          }
+        : defaults.homeTestimonials,
+    homeLookbook:
+      row.homeLookbook && typeof row.homeLookbook === "object"
+        ? {
+            ...defaults.homeLookbook,
+            ...(row.homeLookbook as object),
+            categories:
+              Array.isArray(
+                (row.homeLookbook as { categories?: unknown }).categories,
+              ) &&
+              ((row.homeLookbook as { categories: unknown[] }).categories
+                .length > 0)
+                ? (
+                    row.homeLookbook as {
+                      categories: typeof defaults.homeLookbook.categories;
+                    }
+                  ).categories
+                : defaults.homeLookbook.categories,
+            products:
+              Array.isArray(
+                (row.homeLookbook as { products?: unknown }).products,
+              ) &&
+              ((row.homeLookbook as { products: unknown[] }).products.length > 0)
+                ? (
+                    row.homeLookbook as {
+                      products: typeof defaults.homeLookbook.products;
+                    }
+                  ).products
+                : defaults.homeLookbook.products,
+          }
+        : defaults.homeLookbook,
+    homeChrome:
+      row.homeChrome && typeof row.homeChrome === "object"
+        ? { ...defaults.homeChrome, ...(row.homeChrome as object) }
+        : defaults.homeChrome,
+    aboutSections:
+      Array.isArray(row.aboutSections) && row.aboutSections.length
+        ? row.aboutSections
+        : defaults.aboutSections,
+  });
+
   try {
     const settings = await cacheRemember(CacheKeys.settings, async () => {
       const s = await prisma.siteSetting.findUnique({
         where: { id: "site_config" },
       });
       if (!s) return null;
-      const { parseBannerData } = await import("@/lib/branding");
       const banner = parseBannerData(s.bannerData);
       const social = s.socialLinks
         ? (JSON.parse(s.socialLinks) as Record<string, string>)
@@ -206,13 +284,11 @@ export async function getSiteSettings() {
         social,
       };
     });
-    if (settings) return settings;
+    if (settings) return withHomeDefaults(settings);
   } catch {
     // fallback
   }
-  const { defaultBannerData } = await import("@/lib/branding");
-  const banner = defaultBannerData();
-  return {
+  return withHomeDefaults({
     ...fallbackSite,
     phone: "",
     workingHours: "",
@@ -223,22 +299,27 @@ export async function getSiteSettings() {
     metaDescription: "",
     logoUrl: "",
     faviconUrl: "",
-    slideshow: [] as { id: string; title: string; link: string; imageUrl: string }[],
+    slideshow: [] as {
+      id: string;
+      title: string;
+      link: string;
+      imageUrl: string;
+    }[],
     socialFooter: [] as {
       id: string;
       title: string;
       link: string;
       imageUrl: string;
     }[],
-    footer: banner.footer,
-    pageSeo: banner.pageSeo,
-    hero: banner.hero,
-    homeStats: banner.homeStats,
-    homeTrust: banner.homeTrust,
-    homeTestimonials: banner.homeTestimonials,
-    homeLookbook: banner.homeLookbook,
-    homeChrome: banner.homeChrome,
-    aboutSections: banner.aboutSections,
+    footer: defaults.footer,
+    pageSeo: defaults.pageSeo,
+    hero: defaults.hero,
+    homeStats: defaults.homeStats,
+    homeTrust: defaults.homeTrust,
+    homeTestimonials: defaults.homeTestimonials,
+    homeLookbook: defaults.homeLookbook,
+    homeChrome: defaults.homeChrome,
+    aboutSections: defaults.aboutSections,
     social: {} as Record<string, string>,
-  };
+  });
 }

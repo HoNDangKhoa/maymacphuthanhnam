@@ -5,7 +5,7 @@ const PREFIX = process.env.REDIS_KEY_PREFIX || "ptn";
 export const CacheKeys = {
   workflow: `${PREFIX}:cache:workflow`,
   gallery: `${PREFIX}:cache:gallery`,
-  settings: `${PREFIX}:cache:settings`,
+  settings: `${PREFIX}:cache:settings:v2`,
   posts: (type: string) => `${PREFIX}:cache:posts:${type}`,
   post: (slug: string) => `${PREFIX}:cache:post:${slug}`,
   rateContact: (ip: string) => `${PREFIX}:ratelimit:contact:${ip}`,
