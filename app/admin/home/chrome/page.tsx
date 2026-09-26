@@ -1,7 +1,7 @@
-import { TrustEditor } from "@/components/admin/HomeSectionForms";
+import { HomeChromeEditor } from "@/components/admin/HomeSectionForms";
 import { getSiteSettings } from "@/lib/queries";
 
 export default async function Page() {
   const settings = await getSiteSettings();
-  return <TrustEditor initial={settings.homeTrust} />;
+  return <HomeChromeEditor initial={settings.homeChrome} />;
 }

@@ -425,6 +425,12 @@ async function saveBannerData(
   });
   await revalidatePublic();
   revalidatePath("/admin/home/hero");
+  revalidatePath("/admin/home/stats");
+  revalidatePath("/admin/home/trust");
+  revalidatePath("/admin/home/testimonials");
+  revalidatePath("/admin/home/lookbook");
+  revalidatePath("/admin/home/chrome");
+  revalidatePath("/admin/static/about");
   revalidatePath("/admin/branding/logo");
   revalidatePath("/admin/branding/favicon");
   revalidatePath("/admin/branding/video");
@@ -452,6 +458,42 @@ export async function saveHeroContent(
   hero: import("@/lib/branding").HeroContent,
 ) {
   await saveBannerData((data) => ({ ...data, hero }));
+}
+
+export async function saveHomeStats(
+  homeStats: import("@/lib/home-content").HomeStatItem[],
+) {
+  await saveBannerData((data) => ({ ...data, homeStats }));
+}
+
+export async function saveHomeTrust(
+  homeTrust: import("@/lib/home-content").HomeTrustContent,
+) {
+  await saveBannerData((data) => ({ ...data, homeTrust }));
+}
+
+export async function saveHomeTestimonials(
+  homeTestimonials: import("@/lib/home-content").HomeTestimonialsContent,
+) {
+  await saveBannerData((data) => ({ ...data, homeTestimonials }));
+}
+
+export async function saveHomeLookbook(
+  homeLookbook: import("@/lib/home-content").HomeLookbookContent,
+) {
+  await saveBannerData((data) => ({ ...data, homeLookbook }));
+}
+
+export async function saveHomeChrome(
+  homeChrome: import("@/lib/home-content").HomeSectionChrome,
+) {
+  await saveBannerData((data) => ({ ...data, homeChrome }));
+}
+
+export async function saveAboutSections(
+  aboutSections: import("@/lib/home-content").AboutSectionItem[],
+) {
+  await saveBannerData((data) => ({ ...data, aboutSections }));
 }
 
 export async function saveSlideshowItems(

@@ -64,7 +64,17 @@ function MarqueeRow({
   );
 }
 
-export function BentoMarqueeGrid({ items }: { items: GalleryItem[] }) {
+export function BentoMarqueeGrid({
+  items,
+  eyebrow = "Không gian sản xuất",
+  title = "Không gian xưởng & máy móc",
+  description = "Lưới ảnh bất đối xứng kết hợp marquee trôi — cảm nhận quy mô sản xuất Phú Thành Nam.",
+}: {
+  items: GalleryItem[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}) {
   const galleryItems = items;
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
 
@@ -72,18 +82,15 @@ export function BentoMarqueeGrid({ items }: { items: GalleryItem[] }) {
 
   const rowA = galleryItems;
   const rowB = galleryItems.slice().reverse();
-  const rowC = [
-    ...galleryItems.slice(2),
-    ...galleryItems.slice(0, 2),
-  ];
+  const rowC = [...galleryItems.slice(2), ...galleryItems.slice(0, 2)];
 
   return (
     <section className="overflow-hidden bg-[#141414] py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <SectionTitle
-          eyebrow="Không gian sản xuất"
-          title="Không gian xưởng & máy móc"
-          description="Lưới ảnh bất đối xứng kết hợp marquee trôi — cảm nhận quy mô sản xuất Phú Thành Nam."
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
           light
         />
       </div>

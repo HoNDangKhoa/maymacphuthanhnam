@@ -12,7 +12,17 @@ type Step = {
   imageUrl: string;
 };
 
-export function StickyWorkflow({ steps }: { steps: Step[] }) {
+export function StickyWorkflow({
+  steps,
+  eyebrow = "Quy trình làm việc",
+  title = "Từ tiếp nhận đến xuất xưởng",
+  description = "Cuộn để xem từng công đoạn — sticky stacking theo chuẩn vận hành PTN.",
+}: {
+  steps: Step[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}) {
   const containerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const workflowSteps = steps;
@@ -41,13 +51,13 @@ export function StickyWorkflow({ steps }: { steps: Step[] }) {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:grid-cols-12 md:gap-16 md:px-8 md:py-28">
         <div className="md:col-span-5 md:sticky md:top-28 md:self-start">
           <p className="text-xs font-semibold tracking-[0.22em] text-brass-bright uppercase">
-            Quy trình làm việc
+            {eyebrow}
           </p>
           <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight md:text-5xl">
-            Từ tiếp nhận đến xuất xưởng
+            {title}
           </h2>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-paper/60 md:text-base">
-            Cuộn để xem từng công đoạn — sticky stacking theo chuẩn vận hành PTN.
+            {description}
           </p>
           <ol className="mt-10 space-y-3">
             {workflowSteps.map((step, i) => (

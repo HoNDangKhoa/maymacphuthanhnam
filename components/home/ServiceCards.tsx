@@ -10,17 +10,25 @@ export type ServiceCardItem = {
   image: string;
 };
 
-export function ServiceCards({ items }: { items?: ServiceCardItem[] }) {
+export function ServiceCards({
+  items,
+  eyebrow = "Dịch vụ",
+  title = "Dịch vụ của chúng tôi",
+}: {
+  items?: ServiceCardItem[];
+  eyebrow?: string;
+  title?: string;
+}) {
   const list = items?.length ? items : fallbackServices;
 
   return (
     <section id="dich-vu" className="bg-paper py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <p className="text-xs font-semibold tracking-[0.18em] text-accent uppercase">
-          Dịch vụ
+          {eyebrow}
         </p>
         <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-5xl">
-          Dịch vụ của chúng tôi
+          {title}
         </h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">

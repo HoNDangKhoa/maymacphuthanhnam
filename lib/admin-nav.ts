@@ -53,6 +53,8 @@ export const adminNav: AdminNavItem[] = [
       { label: "Slogan / Hero", href: "/admin/home/hero" },
       { label: "Giá trị cốt lõi", href: "/admin/home/trust" },
       { label: "Số liệu thống kê", href: "/admin/home/stats" },
+      { label: "Lookbook sản phẩm", href: "/admin/home/lookbook" },
+      { label: "Tiêu đề section", href: "/admin/home/chrome" },
       { label: "Quy trình làm việc", href: "/admin/home/workflow" },
       { label: "Đánh giá khách hàng", href: "/admin/home/testimonials" },
       { label: "Giới thiệu", href: "/admin/static/about" },

@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 
-export function RequestFormSection() {
+export function RequestFormSection({
+  title = "Gửi yêu cầu cho chúng tôi",
+  description = "Để lại thông tin — đội ngũ Phú Thành Nam sẽ liên hệ tư vấn OMD/CMT trong 24 giờ làm việc.",
+}: {
+  title?: string;
+  description?: string;
+}) {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -14,11 +20,10 @@ export function RequestFormSection() {
       <div className="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-12 md:items-center md:gap-16 md:px-8">
         <div className="md:col-span-5">
           <h2 className="font-display text-3xl font-bold tracking-tight text-ink uppercase md:text-4xl lg:text-5xl">
-            Gửi yêu cầu cho chúng tôi
+            {title}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-ink/70">
-            Để lại thông tin — đội ngũ Phú Thành Nam sẽ liên hệ tư vấn OMD/CMT
-            trong 24 giờ làm việc.
+            {description}
           </p>
         </div>
 

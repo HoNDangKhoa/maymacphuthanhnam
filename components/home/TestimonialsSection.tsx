@@ -1,26 +1,29 @@
 "use client";
 
-import { testimonials } from "@/lib/data";
+import type { HomeTestimonialsContent } from "@/lib/home-content";
 
-export function TestimonialsSection() {
+export function TestimonialsSection({
+  content,
+}: {
+  content: HomeTestimonialsContent;
+}) {
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <p className="text-xs font-semibold tracking-[0.2em] text-[#c5a04d] uppercase">
-          Client Stories
+          {content.eyebrow}
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-ink uppercase md:text-4xl">
-          Đánh giá từ khách hàng
+          {content.heading}
         </h2>
         <p className="mt-3 max-w-xl text-sm font-semibold text-ink/55 md:text-base">
-          Don&apos;t just take our word for it. Hear from the brands we&apos;ve
-          helped grow.
+          {content.tagline}
         </p>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
-          {testimonials.map((t) => (
+          {content.items.map((t) => (
             <blockquote
-              key={t.author}
+              key={t.id}
               tabIndex={0}
               className="group relative flex min-h-[300px] cursor-default flex-col rounded-lg bg-[#f4f1ec] p-7 text-ink outline-none transition duration-300 hover:bg-[#1a1a1a] hover:text-white focus-visible:bg-[#1a1a1a] focus-visible:text-white md:min-h-[340px] md:p-8"
             >

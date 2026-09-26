@@ -1,40 +1,39 @@
 import Link from "next/link";
-import { trustFeatures } from "@/lib/data";
+import type { HomeTrustContent } from "@/lib/home-content";
 
-export function ValuesSection() {
+export function ValuesSection({ content }: { content: HomeTrustContent }) {
   return (
     <section className="bg-sand py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-12 md:gap-16 md:px-8">
         <div className="md:col-span-5">
           <h2 className="font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-[2.75rem] lg:leading-tight">
-            Đối tác tin cậy của các thương hiệu thời trang toàn cầu
+            {content.heading}
           </h2>
           <p className="mt-6 text-base leading-relaxed text-ink/65">
-            Phú Thành Nam đồng hành cùng brand từ brief đến xuất xưởng — kiểm soát
-            chất lượng, tiến độ và chi phí theo chuẩn xuất khẩu quốc tế.
+            {content.body}
           </p>
 
           <div className="mt-10 bg-ink px-6 py-7 text-paper md:px-8 md:py-8">
             <p className="font-display text-3xl font-bold md:text-4xl">
-              Happy users 100%
+              {content.happyUsersTitle}
             </p>
             <p className="mt-2 text-sm text-paper/65">
-              Tỉ lệ hài lòng khách hàng
+              {content.happyUsersSubtitle}
             </p>
           </div>
 
           <Link
-            href="/gioi-thieu"
+            href={content.ctaHref || "/gioi-thieu"}
             className="mt-8 inline-flex text-sm font-semibold text-accent transition hover:text-accent-hover"
           >
-            Tìm hiểu về PTN →
+            {content.ctaLabel}
           </Link>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:col-span-7">
-          {trustFeatures.map((item) => (
+          {content.features.map((item) => (
             <div
-              key={item.title}
+              key={item.id}
               className="group flex flex-col justify-between border border-[var(--line)] bg-paper p-6 transition duration-300 hover:border-transparent hover:bg-ink hover:text-paper md:p-7"
             >
               <div>

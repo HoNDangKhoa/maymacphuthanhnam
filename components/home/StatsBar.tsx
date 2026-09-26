@@ -8,7 +8,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { stats } from "@/lib/data";
+import type { HomeStatItem } from "@/lib/home-content";
 
 const ICONS: LucideIcon[] = [Award, Package, Handshake, Users];
 
@@ -75,9 +75,10 @@ function StatItem({
   );
 }
 
-export function StatsBar() {
+export function StatsBar({ items }: { items: HomeStatItem[] }) {
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState(false);
+  const stats = items;
 
   useEffect(() => {
     const el = ref.current;
@@ -92,12 +93,14 @@ export function StatsBar() {
     return () => io.disconnect();
   }, []);
 
+  if (!stats.length) return null;
+
   return (
     <section ref={ref} className="relative z-[1] -mt-px bg-[#222] py-10 md:py-12">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-10 px-5 md:grid-cols-4 md:gap-6 md:px-8">
         {stats.map((stat, i) => (
           <StatItem
-            key={stat.label}
+            key={stat.id}
             {...stat}
             icon={ICONS[i % ICONS.length]!}
             active={active}

@@ -2,29 +2,30 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { productCategories, products } from "@/lib/data";
+import type { HomeLookbookContent } from "@/lib/home-content";
 import { cn } from "@/lib/utils";
 
-export function ProductLookbook() {
-  const [active, setActive] = useState("BLAZER");
+export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
+  const categories = content.categories;
+  const products = content.products;
+  const [active, setActive] = useState(categories[0] || "");
   const [hovered, setHovered] = useState<string | null>(null);
+
+  if (!products.length) return null;
 
   return (
     <section className="bg-[#1a1a1a] py-20 text-white md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-sm font-semibold text-accent">
-          Sản phẩm của chúng tôi
-        </p>
+        <p className="text-sm font-semibold text-accent">{content.eyebrow}</p>
         <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-tight">
-          Các dòng sản phẩm đang gia công
+          {content.title}
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed font-semibold text-white/55 md:text-base">
-          Sản phẩm chính của chúng tôi là áo blazer, áo jacket, áo khoác và quần
-          dành cho các thương hiệu thời trang toàn cầu.
+          {content.description}
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          {productCategories.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               type="button"
@@ -59,13 +60,15 @@ export function ProductLookbook() {
                     isHighlighted && "ring-2 ring-[#5dade2]",
                   )}
                 >
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition duration-700 group-hover:scale-[1.03]"
-                    sizes="(max-width:768px) 100vw, 50vw"
-                  />
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                      sizes="(max-width:768px) 100vw, 50vw"
+                    />
+                  ) : null}
 
                   <div
                     className={cn(

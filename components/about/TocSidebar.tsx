@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { aboutSections } from "@/lib/data";
+import type { AboutSectionItem } from "@/lib/home-content";
 import { cn } from "@/lib/utils";
 
-export function TocSidebar() {
-  const [active, setActive] = useState(aboutSections[0].id);
+export function TocSidebar({ sections }: { sections: AboutSectionItem[] }) {
+  const [active, setActive] = useState(sections[0]?.id || "");
 
   useEffect(() => {
-    const els = aboutSections
+    if (!sections.length) return;
+    const els = sections
       .map((s) => document.getElementById(s.id))
       .filter(Boolean) as HTMLElement[];
 
@@ -24,14 +25,14 @@ export function TocSidebar() {
 
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [sections]);
 
   return (
     <nav className="sticky top-28 space-y-1">
       <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-brass uppercase">
         Mục lục
       </p>
-      {aboutSections.map((section) => (
+      {sections.map((section) => (
         <a
           key={section.id}
           href={`#${section.id}`}

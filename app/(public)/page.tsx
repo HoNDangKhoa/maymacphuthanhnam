@@ -24,15 +24,16 @@ export default async function HomePage() {
     getPublishedPosts("SERVICE"),
   ]);
 
+  const chrome = settings.homeChrome;
+
   return (
     <>
-      <HeroSection
-        slides={settings.slideshow}
-        content={settings.hero}
-      />
-      <StatsBar />
-      <ValuesSection />
+      <HeroSection slides={settings.slideshow} content={settings.hero} />
+      <StatsBar items={settings.homeStats} />
+      <ValuesSection content={settings.homeTrust} />
       <ServiceCards
+        eyebrow={chrome.servicesEyebrow}
+        title={chrome.servicesTitle}
         items={servicePosts.map((p) => ({
           slug: p.slug,
           title: p.title,
@@ -41,11 +42,24 @@ export default async function HomePage() {
           image: p.thumbnail,
         }))}
       />
-      <ProductLookbook />
-      <BentoMarqueeGrid items={gallery} />
-      <StickyWorkflow steps={workflow} />
-      <TestimonialsSection />
-      <RequestFormSection />
+      <ProductLookbook content={settings.homeLookbook} />
+      <BentoMarqueeGrid
+        items={gallery}
+        eyebrow={chrome.galleryEyebrow}
+        title={chrome.galleryTitle}
+        description={chrome.galleryDescription}
+      />
+      <StickyWorkflow
+        steps={workflow}
+        eyebrow={chrome.workflowEyebrow}
+        title={chrome.workflowTitle}
+        description={chrome.workflowDescription}
+      />
+      <TestimonialsSection content={settings.homeTestimonials} />
+      <RequestFormSection
+        title={chrome.requestTitle}
+        description={chrome.requestDescription}
+      />
     </>
   );
 }

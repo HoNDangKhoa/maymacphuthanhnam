@@ -1,3 +1,18 @@
+import {
+  type AboutSectionItem,
+  type HomeLookbookContent,
+  type HomeSectionChrome,
+  type HomeStatItem,
+  type HomeTestimonialsContent,
+  type HomeTrustContent,
+  defaultAboutSections,
+  defaultHomeLookbook,
+  defaultHomeSectionChrome,
+  defaultHomeStats,
+  defaultHomeTestimonials,
+  defaultHomeTrust,
+} from "@/lib/home-content";
+
 export type BrandAsset = {
   url: string;
   visible: boolean;
@@ -50,6 +65,12 @@ export type BannerData = {
   footer: FooterContent;
   pageSeo: Record<string, PageSeo>;
   hero: HeroContent;
+  homeStats: HomeStatItem[];
+  homeTrust: HomeTrustContent;
+  homeTestimonials: HomeTestimonialsContent;
+  homeLookbook: HomeLookbookContent;
+  homeChrome: HomeSectionChrome;
+  aboutSections: AboutSectionItem[];
 };
 
 export const PAGE_SEO_KEYS = [
@@ -115,6 +136,12 @@ export function defaultBannerData(): BannerData {
       service: emptyPageSeo(),
     },
     hero: defaultHeroContent(),
+    homeStats: defaultHomeStats(),
+    homeTrust: defaultHomeTrust(),
+    homeTestimonials: defaultHomeTestimonials(),
+    homeLookbook: defaultHomeLookbook(),
+    homeChrome: defaultHomeSectionChrome(),
+    aboutSections: defaultAboutSections(),
   };
 }
 
@@ -128,7 +155,9 @@ export function parseBannerData(raw?: string | null): BannerData {
       favicon: { ...base.favicon, ...(parsed.favicon || {}) },
       video: { ...base.video, ...(parsed.video || {}) },
       slideshow: Array.isArray(parsed.slideshow) ? parsed.slideshow : [],
-      socialFooter: Array.isArray(parsed.socialFooter) ? parsed.socialFooter : [],
+      socialFooter: Array.isArray(parsed.socialFooter)
+        ? parsed.socialFooter
+        : [],
       footer: { ...base.footer, ...(parsed.footer || {}) },
       pageSeo: {
         news: { ...base.pageSeo.news, ...(parsed.pageSeo?.news || {}) },
@@ -142,6 +171,47 @@ export function parseBannerData(raw?: string | null): BannerData {
         },
       },
       hero: { ...base.hero, ...(parsed.hero || {}) },
+      homeStats:
+        Array.isArray(parsed.homeStats) && parsed.homeStats.length
+          ? parsed.homeStats
+          : base.homeStats,
+      homeTrust: {
+        ...base.homeTrust,
+        ...(parsed.homeTrust || {}),
+        features:
+          Array.isArray(parsed.homeTrust?.features) &&
+          parsed.homeTrust.features.length
+            ? parsed.homeTrust.features
+            : base.homeTrust.features,
+      },
+      homeTestimonials: {
+        ...base.homeTestimonials,
+        ...(parsed.homeTestimonials || {}),
+        items:
+          Array.isArray(parsed.homeTestimonials?.items) &&
+          parsed.homeTestimonials.items.length
+            ? parsed.homeTestimonials.items
+            : base.homeTestimonials.items,
+      },
+      homeLookbook: {
+        ...base.homeLookbook,
+        ...(parsed.homeLookbook || {}),
+        categories:
+          Array.isArray(parsed.homeLookbook?.categories) &&
+          parsed.homeLookbook.categories.length
+            ? parsed.homeLookbook.categories
+            : base.homeLookbook.categories,
+        products:
+          Array.isArray(parsed.homeLookbook?.products) &&
+          parsed.homeLookbook.products.length
+            ? parsed.homeLookbook.products
+            : base.homeLookbook.products,
+      },
+      homeChrome: { ...base.homeChrome, ...(parsed.homeChrome || {}) },
+      aboutSections:
+        Array.isArray(parsed.aboutSections) && parsed.aboutSections.length
+          ? parsed.aboutSections
+          : base.aboutSections,
     };
   } catch {
     return base;

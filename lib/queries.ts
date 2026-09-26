@@ -197,6 +197,12 @@ export async function getSiteSettings() {
         footer: banner.footer,
         pageSeo: banner.pageSeo,
         hero: banner.hero,
+        homeStats: banner.homeStats,
+        homeTrust: banner.homeTrust,
+        homeTestimonials: banner.homeTestimonials,
+        homeLookbook: banner.homeLookbook,
+        homeChrome: banner.homeChrome,
+        aboutSections: banner.aboutSections,
         social,
       };
     });
@@ -204,6 +210,8 @@ export async function getSiteSettings() {
   } catch {
     // fallback
   }
+  const { defaultBannerData } = await import("@/lib/branding");
+  const banner = defaultBannerData();
   return {
     ...fallbackSite,
     phone: "",
@@ -222,22 +230,15 @@ export async function getSiteSettings() {
       link: string;
       imageUrl: string;
     }[],
-    footer: {
-      summary: "",
-      content: "",
-      imageUrl: "",
-      copyright: "",
-      isVisible: true,
-    },
-    pageSeo: {},
-    hero: {
-      heading: "MAY MẶC PHÚ THÀNH NAM",
-      subheading: fallbackSite.slogan,
-      description:
-        "Đối tác gia công may mặc tin cậy cho thương hiệu trong nước và quốc tế — từ phòng mẫu đến xuất xưởng với tiêu chuẩn xuất khẩu.",
-      ctaLabel: "Xem thêm",
-      ctaHref: "/gioi-thieu",
-    },
+    footer: banner.footer,
+    pageSeo: banner.pageSeo,
+    hero: banner.hero,
+    homeStats: banner.homeStats,
+    homeTrust: banner.homeTrust,
+    homeTestimonials: banner.homeTestimonials,
+    homeLookbook: banner.homeLookbook,
+    homeChrome: banner.homeChrome,
+    aboutSections: banner.aboutSections,
     social: {} as Record<string, string>,
   };
 }
