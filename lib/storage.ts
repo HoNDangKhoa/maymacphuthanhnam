@@ -43,8 +43,8 @@ export async function uploadFile(
   // Guard against corrupted env values (CLI prompt leftovers like "\ny" / "\\ny")
   const rawBlob = process.env.BLOB_READ_WRITE_TOKEN ?? "";
   const blobToken =
-    rawBlob.match(/vercel_blob_rw_[A-Za-z0-9]+/)?.[0] ||
-    rawBlob.replace(/\\n/g, "\n").split(/\r?\n/)[0]?.trim() ||
+    rawBlob.match(/vercel_blob_rw_[A-Za-z0-9_]+/)?.[0] ||
+    rawBlob.replace(/\\n/g, "\n").split(/\r?\n/)[0]?.trim().replace(/\s+y$/i, "").trim() ||
     "";
   if (blobToken) {
     const blob = await put(filename, file, {
