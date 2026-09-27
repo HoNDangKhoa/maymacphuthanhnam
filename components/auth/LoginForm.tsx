@@ -61,7 +61,7 @@ export function LoginForm({ callbackUrl = "/admin" }: { callbackUrl?: string }) 
       >
         {loading ? "Đang đăng nhập…" : "Đăng nhập"}
       </Button>
-      <p className="text-xs font-semibold text-ink/40">
+      <p className="text-xs text-ink/40">
         Demo: admin@phuthanhnam.vn / admin123
       </p>
     </form>

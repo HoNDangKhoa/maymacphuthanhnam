@@ -16,7 +16,7 @@ export function TestimonialsSection({
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-ink uppercase md:text-4xl">
           {content.heading}
         </h2>
-        <p className="mt-3 max-w-xl text-sm font-semibold text-ink/55 md:text-base">
+        <p className="mt-3 max-w-xl text-sm text-ink/55 md:text-base">
           {content.tagline}
         </p>
 
@@ -34,7 +34,7 @@ export function TestimonialsSection({
                 “
               </span>
 
-              <p className="flex-1 text-[15px] leading-relaxed font-semibold text-ink/80 transition group-hover:text-white/90 group-focus-visible:text-white/90 md:text-base">
+              <p className="flex-1 text-[15px] leading-relaxed text-ink/80 transition group-hover:text-white/90 group-focus-visible:text-white/90 md:text-base">
                 “{t.quote}”
               </p>
 
@@ -50,7 +50,7 @@ export function TestimonialsSection({
                   <p className="text-sm font-semibold text-ink transition group-hover:text-white group-focus-visible:text-white">
                     {t.author}
                   </p>
-                  <p className="text-xs font-semibold text-ink/50 transition group-hover:text-white/55 group-focus-visible:text-white/55">
+                  <p className="text-xs text-ink/50 transition group-hover:text-white/55 group-focus-visible:text-white/55">
                     {t.role}
                   </p>
                 </div>

@@ -95,7 +95,7 @@ export function StatsEditor({ initial }: { initial: HomeStatItem[] }) {
   return (
     <div>
       <AdminPageHeader title="Số liệu thống kê" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Thanh số liệu dưới hero trang chủ (icon + số + nhãn + mô tả ngắn).
       </p>
       <form
@@ -241,7 +241,7 @@ export function TrustEditor({ initial }: { initial: HomeTrustContent }) {
   return (
     <div>
       <AdminPageHeader title="Giá trị cốt lõi / Đối tác tin cậy" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Khối đối tác tin cậy + 4 thẻ hover đen trên trang chủ.
       </p>
       <form
@@ -397,7 +397,7 @@ export function TestimonialsEditor({
   return (
     <div>
       <AdminPageHeader title="Đánh giá khách hàng" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Tiêu đề section + danh sách đánh giá (hover đen trên trang chủ).
       </p>
       <form
@@ -549,7 +549,7 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
   return (
     <div>
       <AdminPageHeader title="Lookbook sản phẩm" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Tab danh mục + lưới ảnh sản phẩm trên trang chủ.
       </p>
       <form
@@ -775,7 +775,7 @@ export function HomeChromeEditor({
   return (
     <div>
       <AdminPageHeader title="Tiêu đề các section trang chủ" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Eyebrow / tiêu đề / mô tả cho Dịch vụ, Gallery, Quy trình, Form gửi yêu
         cầu.
       </p>
@@ -830,7 +830,7 @@ export function AboutEditor({ initial }: { initial: AboutSectionItem[] }) {
   return (
     <div>
       <AdminPageHeader title="Giới thiệu" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Các mục trang /gioi-thieu (lịch sử, tầm nhìn, giá trị…).
       </p>
       <form

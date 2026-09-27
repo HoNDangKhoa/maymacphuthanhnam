@@ -15,7 +15,7 @@ export function SectionEditorPage({
   return (
     <div>
       <AdminPageHeader title={title} />
-      <p className="mb-5 text-sm font-semibold text-ink/55">{description}</p>
+      <p className="mb-5 text-sm text-ink/55">{description}</p>
       <AdminCard>
         <form className="max-w-2xl space-y-4">
           {fields.map((f) => (

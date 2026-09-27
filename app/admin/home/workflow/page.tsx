@@ -10,7 +10,7 @@ export default async function AdminHomeWorkflowPage() {
   return (
     <div>
       <AdminPageHeader title="Quy trình làm việc" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Kéo thả thứ tự — trang chủ render Sticky Stacking tương ứng.
       </p>
       <WorkflowManager initial={steps} />

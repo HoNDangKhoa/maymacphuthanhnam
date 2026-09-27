@@ -20,7 +20,7 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
         <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-tight">
           {content.title}
         </h2>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed font-semibold text-white/55 md:text-base">
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">
           {content.description}
         </p>
 

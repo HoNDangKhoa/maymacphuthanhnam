@@ -10,7 +10,7 @@ export default async function AdminGalleryPage() {
   return (
     <div>
       <AdminPageHeader title="Gallery xưởng" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Kho ảnh xưởng — bật/tắt Marquee, kéo thả thứ tự.
       </p>
       <GalleryManager initial={items} />

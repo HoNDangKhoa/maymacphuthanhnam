@@ -17,7 +17,7 @@ export function HeroContentForm({ initial }: { initial: HeroContent }) {
   return (
     <div>
       <AdminPageHeader title="Slogan / Hero" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Tiêu đề lớn, phụ đề và mô tả khu vực hero trang chủ. Ảnh nền lấy từ
         Slideshow (Quản lý hình ảnh → Slideshow).
       </p>

@@ -42,7 +42,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
       <Suspense
         fallback={
-          <div className="rounded-2xl border border-black/8 bg-white p-8 text-sm font-semibold text-ink/50">
+          <div className="rounded-2xl border border-black/8 bg-white p-8 text-sm text-ink/50">
             Đang tải thống kê…
           </div>
         }
@@ -60,7 +60,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           </Link>
         </div>
         {latest.length === 0 ? (
-          <p className="text-sm font-semibold text-ink/50">
+          <p className="text-sm text-ink/50">
             Chưa có thư liên hệ.
           </p>
         ) : (

@@ -22,11 +22,11 @@ export default async function LoginPage({
           </div>
           <div>
             <p className="text-lg font-semibold text-ink">Phú Thành Nam CMS</p>
-            <p className="text-xs font-semibold text-ink/45">Diamond-style Admin</p>
+            <p className="text-xs text-ink/45">Diamond-style Admin</p>
           </div>
         </div>
         <h1 className="text-2xl font-semibold text-ink">Chào mừng trở lại</h1>
-        <p className="mt-2 text-sm font-semibold text-ink/55">
+        <p className="mt-2 text-sm text-ink/55">
           Đăng nhập để quản lý nội dung website
         </p>
         <LoginForm callbackUrl={callbackUrl} />

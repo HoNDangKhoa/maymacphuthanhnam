@@ -10,7 +10,7 @@ export default async function AdminContactsPage() {
   return (
     <div>
       <AdminPageHeader title="Thư liên hệ" />
-      <p className="mb-5 text-sm font-semibold text-ink/55">
+      <p className="mb-5 text-sm text-ink/55">
         Lead CRM · Techpack · lọc ngày · xuất CSV
       </p>
       <InquiriesTable
