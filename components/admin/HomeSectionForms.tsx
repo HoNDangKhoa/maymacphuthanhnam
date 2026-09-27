@@ -23,12 +23,45 @@ import type {
   HomeTrustContent,
 } from "@/lib/home-content";
 import {
+  STAT_ICON_OPTIONS,
+  defaultStatIcon,
   newAboutSection,
   newHomeStat,
   newLookbookProduct,
   newTestimonial,
   newTrustFeature,
+  type StatIconKey,
 } from "@/lib/home-content";
+import {
+  Award,
+  Clock,
+  Factory,
+  Globe,
+  Handshake,
+  Package,
+  Scissors,
+  Shield,
+  Shirt,
+  Star,
+  Truck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+const STAT_ICONS: Record<StatIconKey, LucideIcon> = {
+  award: Award,
+  package: Package,
+  handshake: Handshake,
+  users: Users,
+  factory: Factory,
+  shirt: Shirt,
+  scissors: Scissors,
+  truck: Truck,
+  globe: Globe,
+  star: Star,
+  clock: Clock,
+  shield: Shield,
+};
 
 function SaveBar({
   pending,
@@ -130,6 +163,52 @@ export function StatsEditor({ initial }: { initial: HomeStatItem[] }) {
                   }}
                 />
               </div>
+
+              <div className="mt-4">
+                <Label>Icon</Label>
+                <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-12">
+                  {STAT_ICON_OPTIONS.map((opt) => {
+                    const Icon = STAT_ICONS[opt.key];
+                    const selected =
+                      !item.iconUrl &&
+                      (item.icon ?? defaultStatIcon(index)) === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        title={opt.label}
+                        aria-label={opt.label}
+                        aria-pressed={selected}
+                        onClick={() => {
+                          const next = [...items];
+                          next[index] = { ...item, icon: opt.key, iconUrl: "" };
+                          setItems(next);
+                        }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-full border transition ${
+                          selected
+                            ? "border-accent bg-accent/15 text-accent"
+                            : "border-black/10 bg-white text-ink/60 hover:border-accent/50 hover:text-accent"
+                        }`}
+                      >
+                        <Icon size={20} strokeWidth={2.25} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-4">
+                  <Label>Hoặc tải icon riêng (png/svg, ưu tiên hơn icon chọn sẵn)</Label>
+                  <ImageDropzone
+                    value={item.iconUrl ?? ""}
+                    onChange={(url) => {
+                      const next = [...items];
+                      next[index] = { ...item, iconUrl: url };
+                      setItems(next);
+                    }}
+                    hint="Khuyến nghị: 48×48 px, nền trong suốt (png, svg)"
+                  />
+                </div>
+              </div>
+
               <button
                 type="button"
                 className="mt-3 text-xs font-semibold text-red-600"

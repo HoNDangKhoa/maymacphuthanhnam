@@ -3,14 +3,39 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Award,
+  Clock,
+  Factory,
+  Globe,
   Handshake,
   Package,
+  Scissors,
+  Shield,
+  Shirt,
+  Star,
+  Truck,
   Users,
   type LucideIcon,
 } from "lucide-react";
-import type { HomeStatItem } from "@/lib/home-content";
+import {
+  defaultStatIcon,
+  type HomeStatItem,
+  type StatIconKey,
+} from "@/lib/home-content";
 
-const ICONS: LucideIcon[] = [Award, Package, Handshake, Users];
+const ICONS: Record<StatIconKey, LucideIcon> = {
+  award: Award,
+  package: Package,
+  handshake: Handshake,
+  users: Users,
+  factory: Factory,
+  shirt: Shirt,
+  scissors: Scissors,
+  truck: Truck,
+  globe: Globe,
+  star: Star,
+  clock: Clock,
+  shield: Shield,
+};
 
 function formatStat(value: number) {
   return value.toLocaleString("vi-VN");
@@ -43,6 +68,7 @@ function StatItem({
   label,
   caption,
   icon: Icon,
+  iconUrl,
   active,
 }: {
   value: number;
@@ -50,14 +76,20 @@ function StatItem({
   label: string;
   caption: string;
   icon: LucideIcon;
+  iconUrl?: string;
   active: boolean;
 }) {
   const count = useCountUp(value, active);
 
   return (
     <div className="flex flex-col items-center gap-3 px-2 text-center md:items-start md:px-4 md:text-left">
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent">
-        <Icon size={20} strokeWidth={2.25} aria-hidden />
+      <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-accent/15 text-accent">
+        {iconUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={iconUrl} alt="" className="h-6 w-6 object-contain" />
+        ) : (
+          <Icon size={20} strokeWidth={2.25} aria-hidden />
+        )}
       </span>
       <div>
         <p className="font-display text-3xl font-bold tracking-tight text-paper md:text-4xl lg:text-[2.75rem]">
@@ -101,8 +133,12 @@ export function StatsBar({ items }: { items: HomeStatItem[] }) {
         {stats.map((stat, i) => (
           <StatItem
             key={stat.id}
-            {...stat}
-            icon={ICONS[i % ICONS.length]!}
+            value={stat.value}
+            suffix={stat.suffix}
+            label={stat.label}
+            caption={stat.caption}
+            icon={ICONS[stat.icon ?? defaultStatIcon(i)] ?? Award}
+            iconUrl={stat.iconUrl}
             active={active}
           />
         ))}

@@ -7,13 +7,43 @@ import {
   trustFeatures as fallbackTrust,
 } from "@/lib/data";
 
+export const STAT_ICON_OPTIONS = [
+  { key: "award", label: "Huy chương / Kinh nghiệm" },
+  { key: "package", label: "Hộp / Mã hàng" },
+  { key: "handshake", label: "Bắt tay / Đối tác" },
+  { key: "users", label: "Nhóm người / Nhân sự" },
+  { key: "factory", label: "Nhà xưởng" },
+  { key: "shirt", label: "Áo / Sản phẩm" },
+  { key: "scissors", label: "Kéo / Cắt may" },
+  { key: "truck", label: "Xe tải / Giao hàng" },
+  { key: "globe", label: "Quả địa cầu / Xuất khẩu" },
+  { key: "star", label: "Ngôi sao / Chất lượng" },
+  { key: "clock", label: "Đồng hồ / Tiến độ" },
+  { key: "shield", label: "Khiên / Uy tín" },
+] as const;
+
+export type StatIconKey = (typeof STAT_ICON_OPTIONS)[number]["key"];
+
+const DEFAULT_STAT_ICONS: StatIconKey[] = [
+  "award",
+  "package",
+  "handshake",
+  "users",
+];
+
 export type HomeStatItem = {
   id: string;
   value: number;
   suffix: string;
   label: string;
   caption: string;
+  icon?: StatIconKey;
+  iconUrl?: string;
 };
+
+export function defaultStatIcon(index: number): StatIconKey {
+  return DEFAULT_STAT_ICONS[index % DEFAULT_STAT_ICONS.length]!;
+}
 
 export type HomeTrustFeature = {
   id: string;
@@ -93,6 +123,8 @@ export function defaultHomeStats(): HomeStatItem[] {
     suffix: s.suffix,
     label: s.label,
     caption: s.caption,
+    icon: defaultStatIcon(i),
+    iconUrl: "",
   }));
 }
 
@@ -169,6 +201,8 @@ export function newHomeStat(partial?: Partial<HomeStatItem>): HomeStatItem {
     suffix: "+",
     label: "",
     caption: "",
+    icon: "award",
+    iconUrl: "",
     ...partial,
   };
 }
