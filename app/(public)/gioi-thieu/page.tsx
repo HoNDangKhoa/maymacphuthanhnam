@@ -43,7 +43,7 @@ export default async function AboutPage() {
                 id={section.id}
                 className="scroll-mt-32"
               >
-                <p className="font-display text-sm text-brass">
+                <p className="font-display text-sm font-semibold text-brass">
                   {String(i + 1).padStart(2, "0")}
                 </p>
                 <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">

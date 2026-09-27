@@ -66,7 +66,7 @@ function SortableRow({
       >
         <GripVertical size={18} />
       </button>
-      <span className="font-display text-xl text-brass">{step.stepNumber}</span>
+      <span className="font-display text-xl font-semibold text-brass">{step.stepNumber}</span>
       <div className="min-w-0 flex-1">
         <p className="font-semibold">{step.title}</p>
         <p className="truncate text-sm text-ink/55">{step.subtitle}</p>

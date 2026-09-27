@@ -64,7 +64,7 @@ export function StickyWorkflow({
               <li
                 key={step.stepNumber}
                 className={cn(
-                  "flex items-center gap-4 font-display text-2xl transition md:text-3xl",
+                  "flex items-center gap-4 font-display text-2xl font-semibold transition md:text-3xl",
                   active === i ? "text-brass-bright" : "text-paper/25",
                 )}
               >
