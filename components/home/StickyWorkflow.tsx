@@ -24,6 +24,7 @@ export function StickyWorkflow({
   description?: string;
 }) {
   const listRef = useRef<HTMLOListElement>(null);
+  const progressRef = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState(0);
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set([0]));
 
@@ -70,11 +71,42 @@ export function StickyWorkflow({
     };
   }, [steps.length]);
 
+  useEffect(() => {
+    const list = listRef.current;
+    const bar = progressRef.current;
+    if (!list || !bar) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const items = list.querySelectorAll<HTMLElement>("[data-step]");
+      const last = items[items.length - 1];
+      if (!last) return;
+      const circleCenter = 28;
+      const max = last.offsetTop;
+      const filled =
+        window.innerHeight / 2 - list.getBoundingClientRect().top - circleCenter;
+      bar.style.height = `${Math.min(Math.max(filled, 0), max)}px`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [steps.length]);
+
   if (!steps.length) return null;
 
   return (
     <section className="bg-[#1c1c1c] text-paper">
-      <div className="mx-auto grid max-w-7xl gap-14 px-5 py-24 md:grid-cols-12 md:gap-10 md:px-8 md:py-32">
+      <div className="mx-auto grid max-w-7xl gap-14 px-5 pt-16 pb-24 md:grid-cols-12 md:gap-10 md:px-8 md:pt-24 md:pb-32">
         <div className="md:col-span-5 md:sticky md:top-32 md:self-start">
           <p className="flex items-center gap-3 font-mono text-sm tracking-wide text-paper/80">
             <span className="h-3 w-3 rounded-[3px] bg-accent" aria-hidden />
@@ -95,6 +127,11 @@ export function StickyWorkflow({
             aria-hidden
             className="absolute top-7 bottom-7 left-7 border-l border-dashed border-paper/20"
           />
+          <span
+            ref={progressRef}
+            aria-hidden
+            className="absolute top-7 left-7 h-0 w-0.5 -translate-x-1/4 rounded-full bg-accent shadow-[0_0_12px_rgba(200,16,46,0.6)]"
+          />
           {steps.map((step, i) => {
             const isRevealed = revealed.has(i);
             const isActive = active === i;
@@ -112,7 +149,9 @@ export function StickyWorkflow({
                     "relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border bg-[#1c1c1c] text-base tabular-nums transition-colors duration-500",
                     isActive
                       ? "border-accent bg-accent text-white"
-                      : "border-paper/25 text-paper/80",
+                      : i < active
+                        ? "border-accent text-paper"
+                        : "border-paper/25 text-paper/80",
                   )}
                 >
                   {step.stepNumber}

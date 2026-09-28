@@ -85,6 +85,26 @@ body {
   animation: marquee-reverse 48s linear infinite;
 }
 
+.marquee-pause-on-hover:has(button:hover) .marquee-track,
+.marquee-pause-on-hover:has(button:hover) .marquee-track-reverse {
+  animation-play-state: paused;
+}
+
+.footer-wordmark {
+  margin-bottom: -0.1em;
+}
+
+.footer-wordmark .marquee-track {
+  animation-duration: 70s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .marquee-track-reverse {
+    animation-play-state: paused;
+  }
+}
+
 @keyframes marquee {
   from {
     transform: translateX(0);

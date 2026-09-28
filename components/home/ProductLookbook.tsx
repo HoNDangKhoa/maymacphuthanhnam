@@ -49,14 +49,14 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
             return (
               <article
                 key={item.id}
-                className="group"
+                className="group scroll-mt-28"
                 onMouseEnter={() => setHovered(item.id)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setActive(item.category)}
               >
                 <div
                   className={cn(
-                    "relative aspect-[3/4] overflow-hidden rounded-[18px] bg-[#111] transition duration-300",
+                    "relative aspect-[3/4] max-h-[calc(100svh-9rem)] w-full overflow-hidden rounded-[18px] bg-[#111] transition duration-300",
                     isHighlighted && "ring-2 ring-[#5dade2]",
                   )}
                 >

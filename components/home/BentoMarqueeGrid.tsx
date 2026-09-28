@@ -85,7 +85,7 @@ export function BentoMarqueeGrid({
   const rowC = [...galleryItems.slice(2), ...galleryItems.slice(0, 2)];
 
   return (
-    <section className="overflow-hidden bg-[#141414] py-20 md:py-28">
+    <section className="overflow-hidden bg-[#141414] pt-20 pb-8 md:pt-28 md:pb-10">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <SectionTitle
           eyebrow={eyebrow}
@@ -95,7 +95,7 @@ export function BentoMarqueeGrid({
         />
       </div>
 
-      <div className="mt-12 space-y-4 py-2">
+      <div className="marquee-pause-on-hover mt-12 space-y-4">
         <MarqueeRow
           items={rowA}
           direction="ltr"

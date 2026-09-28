@@ -30,8 +30,8 @@ export async function Footer() {
   return (
     <footer className="relative overflow-hidden bg-ink text-paper">
       <div className="texture-grain absolute inset-0" />
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:grid-cols-2 md:grid-cols-12 md:px-8 md:py-20">
-        <div className="md:col-span-4">
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-5 pt-16 pb-10 sm:grid-cols-2 md:px-8 md:pt-20 lg:grid-cols-4 lg:gap-12">
+        <div>
           <Logo light imageUrl={settings.logoUrl || undefined} />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-paper/65">
             {summary}
@@ -43,7 +43,7 @@ export async function Footer() {
           ) : null}
         </div>
 
-        <div className="md:col-span-2">
+        <div>
           <p className="text-sm font-semibold text-brass-bright">
             Về công ty
           </p>
@@ -61,7 +61,7 @@ export async function Footer() {
           </ul>
         </div>
 
-        <div className="md:col-span-3">
+        <div>
           <p className="text-sm font-semibold text-brass-bright">
             Dịch vụ
           </p>
@@ -79,7 +79,7 @@ export async function Footer() {
           </ul>
         </div>
 
-        <div className="md:col-span-3">
+        <div>
           <p className="text-sm font-semibold text-brass-bright">
             Liên hệ
           </p>
@@ -89,6 +89,22 @@ export async function Footer() {
             <li>VP: {settings.headOffice}</li>
             <li>Xưởng: {settings.factoryAddress}</li>
           </ul>
+        </div>
+      </div>
+
+      <div
+        aria-hidden
+        className="footer-wordmark relative overflow-hidden select-none"
+      >
+        <div className="marquee-track flex w-max">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <span
+              key={i}
+              className="shrink-0 bg-gradient-to-b from-paper/20 via-paper/8 to-transparent bg-clip-text pr-[0.35em] font-display text-[22vw] leading-[0.82] font-bold tracking-[-0.04em] whitespace-nowrap text-transparent md:text-[15vw]"
+            >
+              Phú Thành Nam
+            </span>
+          ))}
         </div>
       </div>
 
