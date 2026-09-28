@@ -6,6 +6,7 @@ const companyLinks = [
   { href: "/gioi-thieu", label: "Giới thiệu" },
   { href: "/gioi-thieu#lich-su", label: "Lịch sử" },
   { href: "/gioi-thieu#nhan-su", label: "Đội ngũ" },
+  { href: "/san-pham", label: "Sản phẩm" },
   { href: "/nang-luc-san-xuat", label: "Năng lực sản xuất" },
 ];
 

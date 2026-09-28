@@ -1,11 +1,15 @@
 import {
   aboutSections as fallbackAbout,
   productCategories as fallbackCategories,
+  productCategoryInfo as fallbackCategoryInfo,
   products as fallbackProducts,
   stats as fallbackStats,
   testimonials as fallbackTestimonials,
   trustFeatures as fallbackTrust,
 } from "@/lib/data";
+import { slugify } from "@/lib/cms";
+
+export { slugify };
 
 export const STAT_ICON_OPTIONS = [
   { key: "award", label: "Huy chương / Kinh nghiệm" },
@@ -79,6 +83,7 @@ export type HomeTestimonialsContent = {
 
 export type HomeLookbookProduct = {
   id: string;
+  slug?: string;
   name: string;
   label: string;
   category: string;
@@ -130,13 +135,60 @@ export function resolveProductDetail(
   };
 }
 
+export type ProductCategoryInfo = {
+  name: string;
+  description: string;
+  image: string;
+};
+
 export type HomeLookbookContent = {
   eyebrow: string;
   title: string;
   description: string;
   categories: string[];
+  categoryInfo?: Record<string, ProductCategoryInfo>;
   products: HomeLookbookProduct[];
 };
+
+export function productSlug(product: HomeLookbookProduct) {
+  return product.slug?.trim() || slugify(product.name) || product.id;
+}
+
+export function productHref(product: HomeLookbookProduct) {
+  return `/san-pham/${encodeURIComponent(productSlug(product))}`;
+}
+
+export function findProductByParam(
+  products: HomeLookbookProduct[],
+  param: string,
+) {
+  const key = decodeURIComponent(param);
+  return (
+    products.find((p) => productSlug(p) === key) ??
+    products.find((p) => p.id === key)
+  );
+}
+
+export function categorySlug(key: string) {
+  return slugify(key);
+}
+
+export function categoryHref(key: string) {
+  return `/san-pham?danh-muc=${categorySlug(key)}`;
+}
+
+export function categoryInfoOf(
+  content: Pick<HomeLookbookContent, "categoryInfo">,
+  key: string,
+): ProductCategoryInfo {
+  const info = content.categoryInfo?.[key];
+  const fallback = fallbackCategoryInfo[key];
+  return {
+    name: info?.name?.trim() || fallback?.name || key,
+    description: info?.description?.trim() || fallback?.description || "",
+    image: info?.image?.trim() || fallback?.image || "",
+  };
+}
 
 export type HomeSectionChrome = {
   servicesEyebrow: string;
@@ -213,6 +265,7 @@ export function defaultHomeLookbook(): HomeLookbookContent {
     description:
       "Sản phẩm chính của chúng tôi là áo blazer, áo jacket, áo khoác và quần dành cho các thương hiệu thời trang toàn cầu.",
     categories: [...fallbackCategories],
+    categoryInfo: structuredClone(fallbackCategoryInfo),
     products: fallbackProducts.map((p) => ({ ...p })),
   };
 }

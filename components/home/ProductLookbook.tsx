@@ -3,7 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import type { HomeLookbookContent } from "@/lib/home-content";
+import { PillLink } from "@/components/common/PillLink";
+import {
+  categoryInfoOf,
+  productHref,
+  type HomeLookbookContent,
+} from "@/lib/home-content";
 import { cn } from "@/lib/utils";
 
 const ALL = "__all__";
@@ -18,7 +23,7 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
   const visible =
     active === ALL ? products : products.filter((p) => p.category === active);
   const chips = [{ key: ALL, label: "Tất cả" }].concat(
-    categories.map((c) => ({ key: c, label: c })),
+    categories.map((c) => ({ key: c, label: categoryInfoOf(content, c).name })),
   );
 
   return (
@@ -78,7 +83,7 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
             {visible.map((item) => (
               <Link
                 key={item.id}
-                href={`/san-pham/${encodeURIComponent(item.id)}`}
+                href={productHref(item)}
                 className="group block scroll-mt-28"
               >
                 <div className="relative aspect-[3/4] max-h-[calc(100svh-9rem)] w-full overflow-hidden rounded-[18px] bg-[#111] ring-[#5dade2] transition duration-500 group-hover:ring-2">
@@ -108,6 +113,10 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
             Chưa có sản phẩm trong danh mục này.
           </p>
         )}
+
+        <div className="mt-12 flex justify-center">
+          <PillLink href="/san-pham">Xem tất cả sản phẩm</PillLink>
+        </div>
       </div>
     </section>
   );

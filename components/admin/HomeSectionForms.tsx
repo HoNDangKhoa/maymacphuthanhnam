@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
@@ -27,7 +28,6 @@ import {
   defaultStatIcon,
   newAboutSection,
   newHomeStat,
-  newLookbookProduct,
   newTestimonial,
   newTrustFeature,
   type StatIconKey,
@@ -541,16 +541,24 @@ export function TestimonialsEditor({
 
 export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
   const router = useRouter();
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState({
+    eyebrow: initial.eyebrow,
+    title: initial.title,
+    description: initial.description,
+  });
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
-  const [catDraft, setCatDraft] = useState("");
 
   return (
     <div>
-      <AdminPageHeader title="Lookbook sản phẩm" />
+      <AdminPageHeader title="Section sản phẩm (trang chủ)" />
       <p className="mb-5 text-sm text-ink/55">
-        Tab danh mục + lưới ảnh sản phẩm trên trang chủ.
+        Tiêu đề khối sản phẩm trên trang chủ và trang /san-pham. Sản phẩm và
+        danh mục được quản lý tại{" "}
+        <Link href="/admin/products" className="font-semibold text-[#d97706] underline">
+          Quản lý sản phẩm
+        </Link>
+        .
       </p>
       <form
         onSubmit={(e) => {
@@ -558,7 +566,7 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
           startTransition(async () => {
             setMessage("");
             await saveHomeLookbook(form);
-            setMessage("Đã lưu lookbook.");
+            setMessage("Đã lưu.");
             router.refresh();
           });
         }}
@@ -592,278 +600,6 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
             </div>
           </div>
         </AdminCard>
-
-        <AdminCard title="Danh mục tab" className="mt-4">
-          <div className="flex flex-wrap gap-2">
-            {form.categories.map((cat) => (
-              <span
-                key={cat}
-                className="inline-flex items-center gap-2 rounded-full bg-black/5 px-3 py-1.5 text-xs font-semibold"
-              >
-                {cat}
-                <button
-                  type="button"
-                  className="text-red-600"
-                  onClick={() =>
-                    setForm({
-                      ...form,
-                      categories: form.categories.filter((c) => c !== cat),
-                    })
-                  }
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="mt-3 flex gap-2">
-            <Input
-              placeholder="BLAZER"
-              value={catDraft}
-              onChange={(e) => setCatDraft(e.target.value.toUpperCase())}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                const next = catDraft.trim();
-                if (!next || form.categories.includes(next)) return;
-                setForm({ ...form, categories: [...form.categories, next] });
-                setCatDraft("");
-              }}
-            >
-              Thêm
-            </Button>
-          </div>
-        </AdminCard>
-
-        <div className="mt-4 space-y-4">
-          {form.products.map((product, index) => (
-            <AdminCard key={product.id} title={`Sản phẩm ${index + 1}`}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-3">
-                  <div>
-                    <Label>Tên</Label>
-                    <Input
-                      value={product.name}
-                      onChange={(e) => {
-                        const products = [...form.products];
-                        products[index] = { ...product, name: e.target.value };
-                        setForm({ ...form, products });
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Label>Nhãn trên ảnh</Label>
-                    <Input
-                      value={product.label}
-                      onChange={(e) => {
-                        const products = [...form.products];
-                        products[index] = { ...product, label: e.target.value };
-                        setForm({ ...form, products });
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Label>Danh mục</Label>
-                    <select
-                      className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm font-semibold"
-                      value={product.category}
-                      onChange={(e) => {
-                        const products = [...form.products];
-                        products[index] = {
-                          ...product,
-                          category: e.target.value,
-                        };
-                        setForm({ ...form, products });
-                      }}
-                    >
-                      {form.categories.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <Label>Ảnh</Label>
-                  <ImageDropzone
-                    value={product.image}
-                    onChange={(url) => {
-                      const products = [...form.products];
-                      products[index] = { ...product, image: url };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="mt-5 space-y-3 border-t border-black/5 pt-5">
-                <p className="text-sm font-semibold text-ink">
-                  Trang chi tiết sản phẩm
-                </p>
-                <div>
-                  <Label>Nhãn nhỏ phía trên (hiển thị trong [ ])</Label>
-                  <Input
-                    placeholder="Thiết kế để truyền cảm hứng"
-                    value={product.eyebrow ?? ""}
-                    onChange={(e) => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        eyebrow: e.target.value,
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Tiêu đề chi tiết</Label>
-                  <Input
-                    placeholder="Form dáng chuẩn — đường may tinh tế"
-                    value={product.detailTitle ?? ""}
-                    onChange={(e) => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        detailTitle: e.target.value,
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Mô tả (xuống 2 dòng để tách đoạn, **chữ** để in đậm)</Label>
-                  <Textarea
-                    rows={5}
-                    value={product.description ?? ""}
-                    onChange={(e) => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        description: e.target.value,
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Nhãn nhỏ phần ảnh</Label>
-                  <Input
-                    placeholder="Từ ý tưởng đến thành phẩm"
-                    value={product.galleryEyebrow ?? ""}
-                    onChange={(e) => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        galleryEyebrow: e.target.value,
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Tiêu đề phần ảnh</Label>
-                  <Input
-                    placeholder="Khám phá sự kết hợp giữa sáng tạo và công nghệ ở từng công đoạn"
-                    value={product.galleryTitle ?? ""}
-                    onChange={(e) => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        galleryTitle: e.target.value,
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Thư viện ảnh chi tiết (hiển thị theo cặp 2 ảnh — ví dụ ảnh thật + ảnh phác thảo)</Label>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {(product.gallery ?? []).map((src, gi) => (
-                      <div key={gi} className="space-y-1">
-                        <ImageDropzone
-                          value={src}
-                          onChange={(url) => {
-                            const products = [...form.products];
-                            const gallery = [...(product.gallery ?? [])];
-                            gallery[gi] = url;
-                            products[index] = { ...product, gallery };
-                            setForm({ ...form, products });
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className="text-xs font-semibold text-red-600"
-                          onClick={() => {
-                            const products = [...form.products];
-                            products[index] = {
-                              ...product,
-                              gallery: (product.gallery ?? []).filter(
-                                (_, j) => j !== gi,
-                              ),
-                            };
-                            setForm({ ...form, products });
-                          }}
-                        >
-                          Xóa ảnh
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mt-3"
-                    onClick={() => {
-                      const products = [...form.products];
-                      products[index] = {
-                        ...product,
-                        gallery: [...(product.gallery ?? []), ""],
-                      };
-                      setForm({ ...form, products });
-                    }}
-                  >
-                    + Thêm ảnh
-                  </Button>
-                  <p className="mt-2 text-xs text-ink/50">
-                    Để trống sẽ dùng nội dung và ảnh mặc định.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="mt-3 text-xs font-semibold text-red-600"
-                onClick={() =>
-                  setForm({
-                    ...form,
-                    products: form.products.filter((p) => p.id !== product.id),
-                  })
-                }
-              >
-                Xóa sản phẩm
-              </button>
-            </AdminCard>
-          ))}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-4"
-          onClick={() =>
-            setForm({
-              ...form,
-              products: [
-                ...form.products,
-                newLookbookProduct({
-                  category: form.categories[0] || "BLAZER",
-                }),
-              ],
-            })
-          }
-        >
-          + Thêm sản phẩm
-        </Button>
       </form>
     </div>
   );

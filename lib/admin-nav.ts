@@ -21,6 +21,7 @@ import {
   Film,
   KeyRound,
   UserRound,
+  Shirt,
 } from "lucide-react";
 
 export type AdminNavItem = {
@@ -47,13 +48,21 @@ export const adminNav: AdminNavItem[] = [
     ],
   },
   {
+    label: "Quản lý sản phẩm",
+    icon: "product",
+    children: [
+      { label: "Danh sách sản phẩm", href: "/admin/products" },
+      { label: "Danh mục sản phẩm", href: "/admin/product-categories" },
+    ],
+  },
+  {
     label: "Quản lý trang tĩnh",
     icon: "home",
     children: [
       { label: "Slogan / Hero", href: "/admin/home/hero" },
       { label: "Giá trị cốt lõi", href: "/admin/home/trust" },
       { label: "Số liệu thống kê", href: "/admin/home/stats" },
-      { label: "Lookbook sản phẩm", href: "/admin/home/lookbook" },
+      { label: "Section sản phẩm", href: "/admin/home/lookbook" },
       { label: "Tiêu đề section", href: "/admin/home/chrome" },
       { label: "Quy trình làm việc", href: "/admin/home/workflow" },
       { label: "Đánh giá khách hàng", href: "/admin/home/testimonials" },
@@ -118,4 +127,5 @@ export const adminIconMap = {
   password: KeyRound,
   folder: FolderOpen,
   users: Users,
+  product: Shirt,
 } as const;

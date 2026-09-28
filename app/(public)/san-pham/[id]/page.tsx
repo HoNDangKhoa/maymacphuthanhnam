@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { PillLink } from "@/components/common/PillLink";
+import { ProductCard } from "@/components/products/ProductCard";
 import { ProductGallery } from "@/components/products/ProductGallery";
-import { resolveProductDetail } from "@/lib/home-content";
+import {
+  categoryHref,
+  categoryInfoOf,
+  findProductByParam,
+  productHref,
+  productSlug,
+  resolveProductDetail,
+} from "@/lib/home-content";
 import { getSiteSettings } from "@/lib/queries";
 
 type Props = { params: Promise<{ id: string }> };
@@ -13,9 +21,10 @@ export const dynamic = "force-dynamic";
 
 async function findProduct(id: string) {
   const settings = await getSiteSettings();
-  const products = settings.homeLookbook.products;
-  const product = products.find((p) => p.id === decodeURIComponent(id));
-  return { product, products, logoUrl: settings.logoUrl };
+  const catalog = settings.homeLookbook;
+  const products = catalog.products;
+  const product = findProductByParam(products, id);
+  return { product, products, catalog, logoUrl: settings.logoUrl };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -51,8 +60,12 @@ function RichText({ text }: { text: string }) {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params;
-  const { product, products, logoUrl } = await findProduct(id);
+  const { product, products, catalog, logoUrl } = await findProduct(id);
   if (!product) notFound();
+  if (decodeURIComponent(id) !== productSlug(product)) {
+    permanentRedirect(productHref(product));
+  }
+  const category = categoryInfoOf(catalog, product.category);
 
   const detail = resolveProductDetail(product);
   const paragraphs = detail.description
@@ -94,8 +107,15 @@ export default async function ProductDetailPage({ params }: Props) {
               Trang chủ
             </Link>
             <span>»</span>
-            <Link href="/#san-pham" className="hover:text-paper">
+            <Link href="/san-pham" className="hover:text-paper">
               Sản phẩm
+            </Link>
+            <span>»</span>
+            <Link
+              href={categoryHref(product.category)}
+              className="hover:text-paper"
+            >
+              {category.name}
             </Link>
             <span>»</span>
             <span className="text-paper">{product.name}</span>
@@ -148,35 +168,20 @@ export default async function ProductDetailPage({ params }: Props) {
                 Sản phẩm khác
               </h2>
               <Link
-                href="/#san-pham"
+                href="/san-pham"
                 className="text-sm text-white/60 hover:text-white"
               >
                 Xem tất cả →
               </Link>
             </div>
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
-                <Link
+                <ProductCard
                   key={item.id}
-                  href={`/san-pham/${encodeURIComponent(item.id)}`}
-                  className="group block"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#111]">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover transition duration-700 group-hover:scale-[1.03]"
-                        sizes="(max-width:768px) 100vw, 33vw"
-                      />
-                    ) : null}
-                  </div>
-                  <p className="mt-4 text-xs text-accent">{item.category}</p>
-                  <p className="mt-1 font-display text-lg font-medium">
-                    {item.name}
-                  </p>
-                </Link>
+                  product={item}
+                  categoryName={categoryInfoOf(catalog, item.category).name}
+                  dark
+                />
               ))}
             </div>
           </div>

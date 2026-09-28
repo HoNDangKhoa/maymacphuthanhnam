@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { invalidateCmsCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/cms";
+import { productSlug } from "@/lib/home-content";
 
 async function requireAdmin() {
   const session = await auth();
@@ -18,6 +19,7 @@ async function revalidatePublic(slugs: string[] = []) {
   revalidatePath("/tin-tuc");
   revalidatePath("/nang-luc-san-xuat");
   revalidatePath("/dich-vu");
+  revalidatePath("/san-pham", "layout");
   revalidatePath("/lien-he");
   revalidatePath("/gioi-thieu");
   revalidatePath("/admin");
@@ -479,9 +481,99 @@ export async function saveHomeTestimonials(
 }
 
 export async function saveHomeLookbook(
-  homeLookbook: import("@/lib/home-content").HomeLookbookContent,
+  headings: Pick<
+    import("@/lib/home-content").HomeLookbookContent,
+    "eyebrow" | "title" | "description"
+  >,
 ) {
-  await saveBannerData((data) => ({ ...data, homeLookbook }));
+  await saveBannerData((data) => ({
+    ...data,
+    homeLookbook: {
+      ...data.homeLookbook,
+      eyebrow: headings.eyebrow,
+      title: headings.title,
+      description: headings.description,
+    },
+  }));
+}
+
+export async function saveProduct(
+  product: import("@/lib/home-content").HomeLookbookProduct,
+) {
+  const name = product.name.trim();
+  if (!name) return { ok: false as const, error: "Vui lòng nhập tên sản phẩm." };
+
+  let savedSlug = "";
+  await saveBannerData((data) => {
+    const products = [...data.homeLookbook.products];
+    const others = products.filter((p) => p.id !== product.id);
+    const base = slugify(product.slug?.trim() || name) || product.id;
+    let slug = base;
+    for (let n = 2; others.some((p) => productSlug(p) === slug); n++) {
+      slug = `${base}-${n}`;
+    }
+    savedSlug = slug;
+    const next = {
+      ...product,
+      name,
+      slug,
+      label: product.label.trim() || name.toUpperCase(),
+      gallery: (product.gallery ?? []).filter(Boolean),
+    };
+    const index = products.findIndex((p) => p.id === product.id);
+    if (index >= 0) products[index] = next;
+    else products.push(next);
+    return { ...data, homeLookbook: { ...data.homeLookbook, products } };
+  });
+  revalidatePath("/admin/products");
+  return { ok: true as const, slug: savedSlug };
+}
+
+export async function deleteProduct(id: string) {
+  await saveBannerData((data) => ({
+    ...data,
+    homeLookbook: {
+      ...data.homeLookbook,
+      products: data.homeLookbook.products.filter((p) => p.id !== id),
+    },
+  }));
+  revalidatePath("/admin/products");
+}
+
+export async function moveProduct(id: string, delta: -1 | 1) {
+  await saveBannerData((data) => {
+    const products = [...data.homeLookbook.products];
+    const i = products.findIndex((p) => p.id === id);
+    const j = i + delta;
+    if (i < 0 || j < 0 || j >= products.length) return data;
+    [products[i], products[j]] = [products[j]!, products[i]!];
+    return { ...data, homeLookbook: { ...data.homeLookbook, products } };
+  });
+  revalidatePath("/admin/products");
+}
+
+export async function saveProductCategories(
+  categories: string[],
+  categoryInfo: Record<string, import("@/lib/home-content").ProductCategoryInfo>,
+) {
+  const keys = [
+    ...new Set(categories.map((c) => c.trim().toUpperCase()).filter(Boolean)),
+  ];
+  if (!keys.length) {
+    return { ok: false as const, error: "Cần ít nhất một danh mục." };
+  }
+  await saveBannerData((data) => ({
+    ...data,
+    homeLookbook: {
+      ...data.homeLookbook,
+      categories: keys,
+      categoryInfo: Object.fromEntries(
+        keys.map((k) => [k, categoryInfo[k] ?? { name: "", description: "", image: "" }]),
+      ),
+    },
+  }));
+  revalidatePath("/admin/product-categories");
+  return { ok: true as const };
 }
 
 export async function saveHomeChrome(

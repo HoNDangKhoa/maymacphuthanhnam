@@ -11,6 +11,7 @@ export const site = {
 export const navItems = [
   { href: "/", label: "Trang chủ" },
   { href: "/gioi-thieu", label: "Về PTN" },
+  { href: "/san-pham", label: "Sản phẩm" },
   { href: "/nang-luc-san-xuat", label: "Năng lực sản xuất" },
   { href: "/dich-vu", label: "Dịch vụ" },
   { href: "/tin-tuc", label: "Tin tức" },
@@ -117,9 +118,44 @@ export const services = [
 
 export const productCategories = ["BLAZER", "COAT", "JACKET", "PANT"];
 
+export const productCategoryInfo: Record<
+  string,
+  { name: string; description: string; image: string }
+> = {
+  BLAZER: {
+    name: "Áo Blazer",
+    description:
+      "Blazer nam nữ form chuẩn, may đo tỉ mỉ từ vai áo, ve áo đến lớp lót — đáp ứng tiêu chuẩn xuất khẩu.",
+    image:
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1200&q=80",
+  },
+  COAT: {
+    name: "Áo Coat",
+    description:
+      "Áo khoác dáng dài cho mùa thu đông, xử lý tốt vải dày, lót trong và đường may chịu lực.",
+    image:
+      "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=1200&q=80",
+  },
+  JACKET: {
+    name: "Áo Jacket",
+    description:
+      "Jacket chất liệu kỹ thuật: dù, nỉ, denim — chi tiết khóa kéo, bo tay và túi phức tạp.",
+    image:
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=1200&q=80",
+  },
+  PANT: {
+    name: "Quần Pant",
+    description:
+      "Quần âu, kaki, casual — tối ưu rập để đứng dáng, vừa vặn theo nhiều size chart.",
+    image:
+      "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=1200&q=80",
+  },
+};
+
 export const products = [
   {
     id: "1",
+    slug: "ao-blazer",
     name: "Áo Blazer",
     label: "ÁO BLAZER",
     category: "BLAZER",
@@ -139,6 +175,7 @@ export const products = [
   },
   {
     id: "2",
+    slug: "ao-coat",
     name: "Áo Coat",
     label: "ÁO COAT",
     category: "COAT",
@@ -158,6 +195,7 @@ export const products = [
   },
   {
     id: "3",
+    slug: "ao-jacket",
     name: "Áo Jacket",
     label: "ÁO JACKET",
     category: "JACKET",
@@ -177,6 +215,7 @@ export const products = [
   },
   {
     id: "4",
+    slug: "quan-pant",
     name: "Quần Pant",
     label: "QUẦN PANT",
     category: "PANT",
