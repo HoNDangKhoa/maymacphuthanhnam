@@ -76,9 +76,7 @@ export function StickyWorkflow({
     const bar = progressRef.current;
     if (!list || !bar) return;
 
-    let frame = 0;
     const update = () => {
-      frame = 0;
       const items = list.querySelectorAll<HTMLElement>("[data-step]");
       const last = items[items.length - 1];
       if (!last) return;
@@ -88,17 +86,12 @@ export function StickyWorkflow({
         window.innerHeight / 2 - list.getBoundingClientRect().top - circleCenter;
       bar.style.height = `${Math.min(Math.max(filled, 0), max)}px`;
     };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
   }, [steps.length]);
 
