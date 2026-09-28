@@ -16,9 +16,9 @@ export default async function ContactPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div className="bg-paper pt-28 pb-20 md:pb-28">
+    <div className="bg-paper pt-32 md:pt-40 pb-20 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-xs font-semibold tracking-[0.22em] text-brass uppercase">
+        <p className="text-sm font-semibold text-brass">
           Liên hệ
         </p>
         <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
@@ -28,7 +28,7 @@ export default async function ContactPage() {
           Bản đồ xưởng, thông tin liên hệ và form gửi yêu cầu kèm techpack.
         </p>
 
-        <div className="mt-12 overflow-hidden border border-[var(--line)]">
+        <div className="mt-12 overflow-hidden rounded-2xl border border-[var(--line)]">
           <iframe
             title="Bản đồ Phú Thành Nam"
             src={settings.mapsEmbedUrl}

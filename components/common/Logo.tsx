@@ -15,14 +15,14 @@ export function Logo({
     return (
       <Link
         href="/"
-        className={cn("relative block h-10 w-[150px] md:h-12 md:w-[170px]", className)}
+        className={cn("relative block h-12 w-[170px] md:h-16 md:w-[220px]", className)}
       >
         <Image
           src={imageUrl}
           alt="PTN Apparel"
           fill
           className="object-contain object-left"
-          sizes="170px"
+          sizes="220px"
           priority
         />
       </Link>
@@ -38,7 +38,7 @@ export function Logo({
       <span className="relative inline-block">
         <span
           className={cn(
-            "font-display text-[1.65rem] font-bold tracking-tight uppercase md:text-[1.9rem]",
+            "font-display text-[1.9rem] font-bold tracking-tight md:text-[2.3rem]",
             light ? "text-[#f5d54a]" : "text-[#e8c52a]",
             "drop-shadow-[0_0_0.5px_#c8102e]",
             "[text-shadow:0_0_1px_#c8102e,0_0_1px_#c8102e]",
@@ -48,7 +48,7 @@ export function Logo({
         </span>
         <span
           className={cn(
-            "mt-0.5 block font-[cursive] text-[0.95rem] font-semibold italic leading-none md:text-[1.05rem]",
+            "mt-0.5 block font-[cursive] text-[1.05rem] font-semibold italic leading-none md:text-[1.25rem]",
             light ? "text-[#ff6b7a]" : "text-accent",
           )}
           style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}

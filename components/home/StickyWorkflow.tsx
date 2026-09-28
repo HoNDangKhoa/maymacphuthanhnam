@@ -16,100 +16,146 @@ export function StickyWorkflow({
   steps,
   eyebrow = "Quy trình làm việc",
   title = "Từ tiếp nhận đến xuất xưởng",
-  description = "Cuộn để xem từng công đoạn — sticky stacking theo chuẩn vận hành PTN.",
+  description = "",
 }: {
   steps: Step[];
   eyebrow?: string;
   title?: string;
   description?: string;
 }) {
-  const containerRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
   const [active, setActive] = useState(0);
-  const workflowSteps = steps;
+  const [revealed, setRevealed] = useState<Set<number>>(() => new Set([0]));
 
   useEffect(() => {
-    const cards = containerRef.current?.querySelectorAll("[data-step]");
-    if (!cards?.length) return;
+    const items = listRef.current?.querySelectorAll<HTMLElement>("[data-step]");
+    if (!items?.length) return;
 
-    const observers: IntersectionObserver[] = [];
-    cards.forEach((card, index) => {
-      const io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActive(index);
-        },
-        { rootMargin: "-40% 0px -40% 0px", threshold: 0 },
-      );
-      io.observe(card);
-      observers.push(io);
+    const revealIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const passed = entry.boundingClientRect.top < 0;
+          if (!entry.isIntersecting && !passed) return;
+          const index = Number(entry.target.getAttribute("data-step"));
+          setRevealed((prev) => {
+            if (prev.has(index)) return prev;
+            const next = new Set(prev);
+            for (let i = 0; i <= index; i++) next.add(i);
+            return next;
+          });
+        });
+      },
+      { rootMargin: "0px 0px -15% 0px", threshold: 0.15 },
+    );
+
+    const activeIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActive(Number(entry.target.getAttribute("data-step")));
+          }
+        });
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+
+    items.forEach((item) => {
+      revealIo.observe(item);
+      activeIo.observe(item);
     });
 
-    return () => observers.forEach((o) => o.disconnect());
-  }, []);
+    return () => {
+      revealIo.disconnect();
+      activeIo.disconnect();
+    };
+  }, [steps.length]);
+
+  if (!steps.length) return null;
 
   return (
-    <section ref={containerRef} className="bg-ink text-paper">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:grid-cols-12 md:gap-16 md:px-8 md:py-28">
-        <div className="md:col-span-5 md:sticky md:top-28 md:self-start">
-          <p className="text-xs font-semibold tracking-[0.22em] text-brass-bright uppercase">
+    <section className="bg-[#1c1c1c] text-paper">
+      <div className="mx-auto grid max-w-7xl gap-14 px-5 py-24 md:grid-cols-12 md:gap-10 md:px-8 md:py-32">
+        <div className="md:col-span-5 md:sticky md:top-32 md:self-start">
+          <p className="flex items-center gap-3 font-mono text-sm tracking-wide text-paper/80">
+            <span className="h-3 w-3 rounded-[3px] bg-accent" aria-hidden />
             {eyebrow}
           </p>
-          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight md:text-5xl">
+          <h2 className="mt-6 max-w-md font-display text-4xl leading-[1.08] font-medium tracking-tight md:text-5xl lg:text-6xl">
             {title}
           </h2>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-paper/60 md:text-base">
-            {description}
-          </p>
-          <ol className="mt-10 space-y-3">
-            {workflowSteps.map((step, i) => (
-              <li
-                key={step.stepNumber}
-                className={cn(
-                  "flex items-center gap-4 font-display text-2xl font-semibold transition md:text-3xl",
-                  active === i ? "text-brass-bright" : "text-paper/25",
-                )}
-              >
-                <span className="tabular-nums">{step.stepNumber}</span>
-                <span className="text-base md:text-lg">{step.title}</span>
-              </li>
-            ))}
-          </ol>
+          {description ? (
+            <p className="mt-6 max-w-sm text-base leading-relaxed text-paper/55">
+              {description}
+            </p>
+          ) : null}
         </div>
 
-        <div className="space-y-6 md:col-span-7 md:space-y-8">
-          {workflowSteps.map((step, i) => (
-            <article
-              key={step.stepNumber}
-              data-step={step.stepNumber}
-              className={cn(
-                "sticky overflow-hidden rounded-2xl border border-paper/10 bg-ink-soft shadow-[0_-12px_40px_rgba(0,0,0,0.35)] transition",
-                "top-24",
-              )}
-              style={{ zIndex: i + 1 }}
-            >
-              <div className="relative aspect-[16/10]">
-                <Image
-                  src={step.imageUrl}
-                  alt={step.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width:768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
-              </div>
-              <div className="p-6 md:p-8">
-                <p className="text-xs tracking-[0.2em] text-brass-bright uppercase">
-                  Bước {step.stepNumber} · {step.subtitle}
-                </p>
-                <h3 className="mt-2 font-display text-2xl font-semibold md:text-3xl">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-paper/65 md:text-base">
-                  {step.description}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
+        <ol ref={listRef} className="relative md:col-span-7">
+          <span
+            aria-hidden
+            className="absolute top-7 bottom-7 left-7 border-l border-dashed border-paper/20"
+          />
+          {steps.map((step, i) => {
+            const isRevealed = revealed.has(i);
+            const isActive = active === i;
+            return (
+              <li
+                key={`${step.stepNumber}-${i}`}
+                data-step={i}
+                className={cn(
+                  "relative flex gap-6 md:gap-10",
+                  i < steps.length - 1 && "pb-20 md:pb-32",
+                )}
+              >
+                <span
+                  className={cn(
+                    "relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border bg-[#1c1c1c] text-base tabular-nums transition-colors duration-500",
+                    isActive
+                      ? "border-accent bg-accent text-white"
+                      : "border-paper/25 text-paper/80",
+                  )}
+                >
+                  {step.stepNumber}
+                </span>
+
+                <article
+                  className={cn(
+                    "min-w-0 flex-1 transition duration-700 ease-out",
+                    isRevealed
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-8 opacity-0",
+                  )}
+                >
+                  {step.imageUrl ? (
+                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-paper/5">
+                      <Image
+                        src={step.imageUrl}
+                        alt={step.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width:768px) 100vw, 45vw"
+                      />
+                    </div>
+                  ) : null}
+                  {step.subtitle ? (
+                    <p className="mt-8 text-sm text-paper/45">{step.subtitle}</p>
+                  ) : null}
+                  <h3
+                    className={cn(
+                      "font-display text-2xl font-medium md:text-[1.75rem]",
+                      step.subtitle ? "mt-2" : "mt-8",
+                    )}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 max-w-lg text-base leading-relaxed text-paper/60">
+                    {step.description}
+                  </p>
+                </article>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );

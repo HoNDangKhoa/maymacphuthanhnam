@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { PillLink } from "@/components/common/PillLink";
 import { cn } from "@/lib/utils";
 
 export type HeroSlide = {
@@ -63,7 +63,7 @@ export function HeroSection({
       <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-ink/30" />
 
       <div className="relative mx-auto flex min-h-[92svh] max-w-7xl flex-col justify-center px-5 py-28 md:min-h-[100svh] md:px-8">
-        <h1 className="animate-fade-up max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-tight text-paper uppercase sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="animate-fade-up max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-tight text-paper sm:text-5xl md:text-6xl lg:text-7xl">
           {content.heading}
         </h1>
         <p className="animate-fade-up-delay mt-5 font-display text-xl font-semibold tracking-wide text-paper md:text-2xl lg:text-3xl">
@@ -73,12 +73,7 @@ export function HeroSection({
           {content.description}
         </p>
         <div className="animate-fade-up-delay-2 mt-10">
-          <Link
-            href={ctaHref}
-            className="inline-flex bg-accent px-7 py-3.5 text-sm font-semibold text-paper transition hover:bg-accent-hover"
-          >
-            {content.ctaLabel}
-          </Link>
+          <PillLink href={ctaHref}>{content.ctaLabel}</PillLink>
         </div>
       </div>
 

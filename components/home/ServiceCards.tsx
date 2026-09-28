@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { PillLink } from "@/components/common/PillLink";
 import { services as fallbackServices } from "@/lib/data";
 
 export type ServiceCardItem = {
@@ -24,7 +24,7 @@ export function ServiceCards({
   return (
     <section id="dich-vu" className="bg-paper py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-xs font-semibold tracking-[0.18em] text-accent uppercase">
+        <p className="text-sm font-semibold text-accent">
           {eyebrow}
         </p>
         <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-5xl">
@@ -35,7 +35,7 @@ export function ServiceCards({
           {list.map((service) => (
             <article
               key={service.slug}
-              className="group relative aspect-[4/3] overflow-hidden bg-mist md:aspect-[16/11]"
+              className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-mist md:aspect-[16/11]"
             >
               <Image
                 src={service.image}
@@ -55,12 +55,9 @@ export function ServiceCards({
                 <p className="mt-2 max-w-md text-sm text-paper/75 opacity-90 transition group-hover:opacity-100">
                   {service.description}
                 </p>
-                <Link
-                  href={`/dich-vu/${service.slug}`}
-                  className="mt-5 inline-flex bg-accent px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-accent-hover"
-                >
+                <PillLink href={`/dich-vu/${service.slug}`} className="mt-5">
                   Xem thêm
-                </Link>
+                </PillLink>
               </div>
             </article>
           ))}

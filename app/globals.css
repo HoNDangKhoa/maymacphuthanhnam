@@ -28,8 +28,8 @@
   --color-brass-bright: var(--brass-bright);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
-  --font-display: var(--font-inter);
-  --font-sans: var(--font-inter);
+  --font-display: var(--font-geist);
+  --font-sans: var(--font-geist);
 }
 
 * {
@@ -43,7 +43,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   font-weight: 400;
   text-rendering: optimizeLegibility;
 }
@@ -67,7 +67,7 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
 }
 
 .texture-grain {
@@ -127,14 +127,14 @@ body {
 }
 
 .prose-ptn h2 {
-  font-family: var(--font-syne), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   font-size: 1.75rem;
   margin: 2rem 0 0.75rem;
   letter-spacing: -0.02em;
 }
 
 .prose-ptn h3 {
-  font-family: var(--font-syne), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   font-size: 1.25rem;
   margin: 1.5rem 0 0.5rem;
 }

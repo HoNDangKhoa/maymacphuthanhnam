@@ -96,7 +96,7 @@ function StatItem({
           {formatStat(count)}
           {suffix}
         </p>
-        <p className="mt-2 text-xs font-semibold tracking-[0.14em] text-paper uppercase md:text-sm">
+        <p className="mt-2 text-sm font-semibold text-paper md:text-base">
           {label}
         </p>
         <p className="mt-1.5 max-w-[16rem] text-xs leading-relaxed text-paper/55 md:text-[13px]">

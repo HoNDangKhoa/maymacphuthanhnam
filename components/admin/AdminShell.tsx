@@ -54,7 +54,6 @@ export function AdminShell({
   const breadcrumb = useMemo(() => {
     const crumbs: string[] = [];
     if (pathname === "/admin") return crumbs;
-    crumbs.push("Bảng điều khiển");
     for (const item of adminNav) {
       if (item.href && isActivePath(pathname, item.href) && item.href !== "/admin") {
         crumbs.push(item.label);

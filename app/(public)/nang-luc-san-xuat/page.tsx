@@ -14,9 +14,9 @@ export default async function CapabilityPage() {
   const posts = await getPublishedPosts("CAPABILITY");
 
   return (
-    <div className="bg-paper pt-28 pb-20 md:pb-28">
+    <div className="bg-paper pt-32 md:pt-40 pb-20 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-xs font-semibold tracking-[0.22em] text-brass uppercase">
+        <p className="text-sm font-semibold text-brass">
           Năng lực sản xuất
         </p>
         <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">

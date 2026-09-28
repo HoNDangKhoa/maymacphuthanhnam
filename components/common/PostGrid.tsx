@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { PillLink } from "@/components/common/PillLink";
 import { newsCategories } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ export function PostGrid({
             type="button"
             onClick={() => setActive(cat)}
             className={cn(
-              "px-4 py-2 text-sm font-medium transition",
+              "rounded-full px-4 py-2 text-sm font-medium transition",
               active === cat
                 ? "bg-ink text-paper"
                 : "bg-mist text-ink/70 hover:bg-ink/10",
@@ -56,7 +57,7 @@ export function PostGrid({
           <article key={post.slug} className="group flex flex-col">
             <Link
               href={`${basePath}/${post.slug}`}
-              className="relative aspect-video overflow-hidden bg-mist"
+              className="relative aspect-video overflow-hidden rounded-2xl bg-mist"
             >
               <Image
                 src={post.thumbnail}
@@ -67,7 +68,7 @@ export function PostGrid({
               />
             </Link>
             <div className="mt-4 flex items-center gap-3 text-xs text-ink/50">
-              <span className="bg-mist px-2 py-1 font-medium text-ink/70">
+              <span className="rounded-full bg-mist px-2.5 py-1 font-medium text-ink/70">
                 {post.category}
               </span>
               <time dateTime={post.date}>
@@ -80,12 +81,14 @@ export function PostGrid({
             <p className="mt-2 flex-1 text-sm leading-relaxed text-ink/60">
               {post.summary}
             </p>
-            <Link
+            <PillLink
               href={`${basePath}/${post.slug}`}
-              className="mt-4 text-sm font-semibold text-brass transition hover:text-ink"
+              variant="dark"
+              size="sm"
+              className="mt-5 self-start"
             >
-              Xem chi tiết →
-            </Link>
+              Xem chi tiết
+            </PillLink>
           </article>
         ))}
       </div>

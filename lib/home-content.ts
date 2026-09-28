@@ -134,7 +134,7 @@ export function defaultHomeTrust(): HomeTrustContent {
     body: "Phú Thành Nam đồng hành cùng brand từ brief đến xuất xưởng — kiểm soát chất lượng, tiến độ và chi phí theo chuẩn xuất khẩu quốc tế.",
     happyUsersTitle: "Happy users 100%",
     happyUsersSubtitle: "Tỉ lệ hài lòng khách hàng",
-    ctaLabel: "Tìm hiểu về PTN →",
+    ctaLabel: "Tìm hiểu về PTN",
     ctaHref: "/gioi-thieu",
     features: fallbackTrust.map((f, i) => ({
       id: `trust_${i + 1}`,
@@ -179,11 +179,11 @@ export function defaultHomeSectionChrome(): HomeSectionChrome {
     galleryEyebrow: "Không gian sản xuất",
     galleryTitle: "Không gian xưởng & máy móc",
     galleryDescription:
-      "Lưới ảnh bất đối xứng kết hợp marquee trôi — cảm nhận quy mô sản xuất Phú Thành Nam.",
+      "Hệ thống nhà xưởng, dây chuyền và máy móc hiện đại — quy mô sản xuất của Phú Thành Nam.",
     workflowEyebrow: "Quy trình làm việc",
     workflowTitle: "Từ tiếp nhận đến xuất xưởng",
     workflowDescription:
-      "Cuộn để xem từng công đoạn — sticky stacking theo chuẩn vận hành PTN.",
+      "Quy trình 5 bước được chuẩn hóa, minh bạch tiến độ và chất lượng cho từng đơn hàng.",
     requestTitle: "Gửi yêu cầu cho chúng tôi",
     requestDescription:
       "Để lại thông tin — đội ngũ Phú Thành Nam sẽ liên hệ tư vấn OMD/CMT trong 24 giờ làm việc.",

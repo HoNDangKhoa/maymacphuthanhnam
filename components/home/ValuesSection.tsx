@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PillLink } from "@/components/common/PillLink";
 import type { HomeTrustContent } from "@/lib/home-content";
 
 export function ValuesSection({ content }: { content: HomeTrustContent }) {
@@ -13,7 +13,7 @@ export function ValuesSection({ content }: { content: HomeTrustContent }) {
             {content.body}
           </p>
 
-          <div className="mt-10 bg-ink px-6 py-7 text-paper md:px-8 md:py-8">
+          <div className="mt-10 rounded-2xl bg-ink px-6 py-7 text-paper md:px-8 md:py-8">
             <p className="font-display text-3xl font-bold md:text-4xl">
               {content.happyUsersTitle}
             </p>
@@ -22,19 +22,20 @@ export function ValuesSection({ content }: { content: HomeTrustContent }) {
             </p>
           </div>
 
-          <Link
+          <PillLink
             href={content.ctaHref || "/gioi-thieu"}
-            className="mt-8 inline-flex text-sm font-semibold text-accent transition hover:text-accent-hover"
+            variant="dark"
+            className="mt-8"
           >
             {content.ctaLabel}
-          </Link>
+          </PillLink>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:col-span-7">
-          {content.features.map((item) => (
+          {content.features.map((item, i) => (
             <div
               key={item.id}
-              className="group flex flex-col justify-between border border-[var(--line)] bg-paper p-6 transition duration-300 hover:border-transparent hover:bg-ink hover:text-paper md:p-7"
+              className="group flex min-h-56 flex-col justify-between rounded-2xl border border-[var(--line)] bg-paper p-6 transition duration-300 hover:border-transparent hover:bg-ink hover:text-paper md:p-7"
             >
               <div>
                 <h3 className="font-display text-xl font-semibold text-ink transition group-hover:text-paper">
@@ -44,6 +45,9 @@ export function ValuesSection({ content }: { content: HomeTrustContent }) {
                   {item.description}
                 </p>
               </div>
+              <span className="mt-8 self-end font-display text-3xl font-medium text-ink/15 tabular-nums transition group-hover:text-accent">
+                {String(i + 1).padStart(2, "0")}
+              </span>
             </div>
           ))}
         </div>

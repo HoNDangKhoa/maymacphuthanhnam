@@ -29,7 +29,7 @@ export function TocSidebar({ sections }: { sections: AboutSectionItem[] }) {
 
   return (
     <nav className="sticky top-28 space-y-1">
-      <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-brass uppercase">
+      <p className="mb-4 text-sm font-semibold text-brass">
         Mục lục
       </p>
       {sections.map((section) => (

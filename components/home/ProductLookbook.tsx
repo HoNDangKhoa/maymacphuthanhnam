@@ -31,7 +31,7 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
               type="button"
               onClick={() => setActive(cat)}
               className={cn(
-                "rounded-full bg-[#d9d9d9] px-6 py-2.5 text-xs font-semibold tracking-wide text-black uppercase transition hover:bg-[#e8e8e8]",
+                "rounded-full bg-[#d9d9d9] px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-[#e8e8e8]",
                 active === cat && "ring-2 ring-white/40",
               )}
             >
@@ -79,7 +79,7 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
                     )}
                   >
                     <div className="rounded-md bg-white/55 px-8 py-3 backdrop-blur-md">
-                      <p className="text-center text-sm font-semibold tracking-[0.12em] text-accent uppercase">
+                      <p className="text-center text-sm font-semibold text-accent">
                         {item.label}
                       </p>
                     </div>

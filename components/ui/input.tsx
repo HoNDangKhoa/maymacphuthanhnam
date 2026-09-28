@@ -8,7 +8,7 @@ export const Input = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "flex h-10 w-full rounded-sm border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass disabled:opacity-50",
+      "flex h-10 w-full rounded-lg border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass disabled:opacity-50",
       className,
     )}
     {...props}
@@ -23,7 +23,7 @@ export const Textarea = React.forwardRef<
   <textarea
     ref={ref}
     className={cn(
-      "flex min-h-[100px] w-full rounded-sm border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass disabled:opacity-50",
+      "flex min-h-[100px] w-full rounded-lg border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass disabled:opacity-50",
       className,
     )}
     {...props}
@@ -48,7 +48,7 @@ export const Select = React.forwardRef<
   <select
     ref={ref}
     className={cn(
-      "flex h-10 w-full rounded-sm border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass",
+      "flex h-10 w-full rounded-lg border border-[var(--line)] bg-paper px-3 py-2 text-sm outline-none focus:border-brass",
       className,
     )}
     {...props}
@@ -73,7 +73,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-semibold",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
         tones[tone],
       )}
     >

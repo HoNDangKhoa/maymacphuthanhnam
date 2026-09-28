@@ -19,7 +19,7 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <div className="border border-[var(--line)] bg-mist/40 p-8">
+      <div className="rounded-2xl border border-[var(--line)] bg-mist/40 p-8">
         <p className="font-display text-2xl font-semibold text-ink">
           Cảm ơn bạn đã liên hệ
         </p>
@@ -33,7 +33,7 @@ export function ContactForm() {
 
   return (
     <form
-      className="space-y-4 border border-[var(--line)] bg-mist/30 p-6 md:p-8"
+      className="space-y-4 rounded-2xl border border-[var(--line)] bg-mist/30 p-6 md:p-8"
       onSubmit={async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -117,7 +117,7 @@ export function ContactForm() {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="h-12 w-full rounded-full" disabled={loading}>
         {loading ? "Đang gửi…" : "Gửi liên hệ"}
       </Button>
     </form>
@@ -149,9 +149,9 @@ export function ContactInfoCards({
       {cards.map((card) => (
         <div
           key={card.label}
-          className="border border-[var(--line)] bg-paper p-5"
+          className="rounded-2xl border border-[var(--line)] bg-paper p-5"
         >
-          <p className="text-xs tracking-wider text-brass uppercase">
+          <p className="text-sm text-brass">
             {card.label}
           </p>
           <p className="mt-2 font-medium text-ink">{card.value}</p>

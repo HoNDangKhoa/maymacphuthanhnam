@@ -18,7 +18,7 @@ export function SectionTitle({
       {eyebrow && (
         <p
           className={cn(
-            "mb-3 text-xs font-semibold tracking-[0.22em] uppercase",
+            "mb-3 text-sm font-semibold",
             light ? "text-brass-bright" : "text-brass",
           )}
         >

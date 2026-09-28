@@ -35,10 +35,10 @@ export function Header({ logoUrl }: { logoUrl?: string }) {
           : "bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 md:h-[4.5rem] md:px-8">
+      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-6 px-5 md:h-[5.5rem] md:px-8">
         <Logo light={!solid} imageUrl={logoUrl} />
 
-        <nav className="hidden items-center gap-7 xl:gap-9 lg:flex">
+        <nav className="hidden items-center gap-8 xl:gap-10 lg:flex">
           {navItems.map((item) => {
             const active =
               item.href === "/"
@@ -49,7 +49,7 @@ export function Header({ logoUrl }: { logoUrl?: string }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative pb-1 text-[0.72rem] font-bold tracking-[0.12em] uppercase transition-colors md:text-[0.78rem]",
+                  "relative pb-1 text-base font-medium transition-colors",
                   active
                     ? solid
                       ? "text-accent"
@@ -91,7 +91,7 @@ export function Header({ logoUrl }: { logoUrl?: string }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-sm font-bold tracking-[0.12em] uppercase",
+                    "text-base font-medium",
                     active ? "text-accent" : "text-ink",
                   )}
                 >

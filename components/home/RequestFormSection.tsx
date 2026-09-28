@@ -19,7 +19,7 @@ export function RequestFormSection({
     <section className="bg-brass py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-12 md:items-center md:gap-16 md:px-8">
         <div className="md:col-span-5">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-ink uppercase md:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-5xl">
             {title}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-ink/70">
@@ -27,7 +27,7 @@ export function RequestFormSection({
           </p>
         </div>
 
-        <div className="bg-paper p-6 shadow-sm md:col-span-7 md:p-8">
+        <div className="rounded-2xl bg-paper p-6 shadow-sm md:col-span-7 md:p-8">
           {sent ? (
             <p className="py-8 text-center text-sm font-medium text-ink">
               Đã nhận yêu cầu. Chúng tôi sẽ liên hệ sớm.
@@ -67,7 +67,7 @@ export function RequestFormSection({
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-accent text-paper hover:bg-accent-hover"
+                className="h-12 w-full rounded-full bg-accent text-paper hover:bg-accent-hover"
               >
                 {loading ? "Đang gửi…" : "Gửi thông tin"}
               </Button>
