@@ -15,7 +15,7 @@ async function findProduct(id: string) {
   const settings = await getSiteSettings();
   const products = settings.homeLookbook.products;
   const product = products.find((p) => p.id === decodeURIComponent(id));
-  return { product, products };
+  return { product, products, logoUrl: settings.logoUrl };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,16 +30,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function Bracket({ children }: { children: string }) {
+  return <p className="text-sm text-ink/45 md:text-base">[{children}]</p>;
+}
+
+function RichText({ text }: { text: string }) {
   return (
-    <p className="text-sm font-semibold tracking-wide text-accent">
-      [{children}]
-    </p>
+    <>
+      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i} className="font-semibold text-ink">
+            {part.slice(2, -2)}
+          </strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
   );
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params;
-  const { product, products } = await findProduct(id);
+  const { product, products, logoUrl } = await findProduct(id);
   if (!product) notFound();
 
   const detail = resolveProductDetail(product);
@@ -91,51 +103,42 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 md:px-8 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <Bracket>{product.category}</Bracket>
-            <h2 className="mt-4 font-display text-3xl leading-tight font-semibold tracking-tight text-ink md:text-4xl lg:text-5xl">
-              {detail.detailTitle}
-            </h2>
-            <div className="mt-6 space-y-4 text-base leading-relaxed text-ink/70 md:text-lg">
-              {paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-            <PillLink href="/lien-he" variant="dark" className="mt-8">
-              Liên hệ báo giá
-            </PillLink>
+      <section className="bg-white py-16 md:py-24">
+        <div className="mx-auto max-w-4xl px-5 text-center md:px-8">
+          <Bracket>{detail.eyebrow}</Bracket>
+          <h2 className="mt-4 font-display text-3xl leading-tight font-medium tracking-tight text-ink md:text-4xl lg:text-[2.75rem]">
+            {detail.detailTitle}
+          </h2>
+          <div className="mt-8 space-y-5 text-base leading-[1.75] text-ink/80 md:text-lg">
+            {paragraphs.map((p, i) => (
+              <p key={i}>
+                <RichText text={p} />
+              </p>
+            ))}
           </div>
-          {product.image ? (
-            <div className="relative aspect-[4/5] max-h-[calc(100svh-9rem)] w-full overflow-hidden rounded-2xl bg-mist">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width:1024px) 100vw, 50vw"
-              />
-            </div>
-          ) : null}
+          <PillLink href="/lien-he" variant="dark" className="mt-10">
+            Liên hệ báo giá
+          </PillLink>
         </div>
-      </section>
 
-      {detail.gallery.length ? (
-        <section className="border-t border-[var(--line)] py-20 md:py-28">
-          <div className="mx-auto max-w-7xl px-5 md:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <Bracket>Từ mẫu đến thành phẩm</Bracket>
-              <h2 className="mt-4 font-display text-3xl leading-tight font-semibold tracking-tight text-ink md:text-4xl">
-                Hình ảnh chi tiết {product.name.toLowerCase()}
+        {detail.gallery.length ? (
+          <div className="mx-auto mt-20 max-w-6xl px-5 md:mt-24 md:px-8">
+            <div className="text-center">
+              <Bracket>{detail.galleryEyebrow}</Bracket>
+              <h2 className="mx-auto mt-4 max-w-4xl font-display text-3xl leading-tight font-medium tracking-tight text-ink md:text-4xl">
+                {detail.galleryTitle}
               </h2>
             </div>
-            <div className="mt-12">
-              <ProductGallery images={detail.gallery} name={product.name} />
+            <div className="mt-10 md:mt-12">
+              <ProductGallery
+                images={detail.gallery}
+                name={product.name}
+                logoUrl={logoUrl}
+              />
             </div>
           </div>
-        </section>
-      ) : null}
+        ) : null}
+      </section>
 
       {related.length ? (
         <section className="bg-[#1a1a1a] py-20 text-white md:py-24">

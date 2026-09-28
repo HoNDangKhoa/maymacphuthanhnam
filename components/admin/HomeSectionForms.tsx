@@ -703,6 +703,21 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
                   Trang chi tiết sản phẩm
                 </p>
                 <div>
+                  <Label>Nhãn nhỏ phía trên (hiển thị trong [ ])</Label>
+                  <Input
+                    placeholder="Thiết kế để truyền cảm hứng"
+                    value={product.eyebrow ?? ""}
+                    onChange={(e) => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        eyebrow: e.target.value,
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  />
+                </div>
+                <div>
                   <Label>Tiêu đề chi tiết</Label>
                   <Input
                     placeholder="Form dáng chuẩn — đường may tinh tế"
@@ -718,7 +733,7 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
                   />
                 </div>
                 <div>
-                  <Label>Mô tả (xuống 2 dòng để tách đoạn)</Label>
+                  <Label>Mô tả (xuống 2 dòng để tách đoạn, **chữ** để in đậm)</Label>
                   <Textarea
                     rows={5}
                     value={product.description ?? ""}
@@ -733,7 +748,37 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
                   />
                 </div>
                 <div>
-                  <Label>Thư viện ảnh chi tiết</Label>
+                  <Label>Nhãn nhỏ phần ảnh</Label>
+                  <Input
+                    placeholder="Từ ý tưởng đến thành phẩm"
+                    value={product.galleryEyebrow ?? ""}
+                    onChange={(e) => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        galleryEyebrow: e.target.value,
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>Tiêu đề phần ảnh</Label>
+                  <Input
+                    placeholder="Khám phá sự kết hợp giữa sáng tạo và công nghệ ở từng công đoạn"
+                    value={product.galleryTitle ?? ""}
+                    onChange={(e) => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        galleryTitle: e.target.value,
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>Thư viện ảnh chi tiết (hiển thị theo cặp 2 ảnh — ví dụ ảnh thật + ảnh phác thảo)</Label>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {(product.gallery ?? []).map((src, gi) => (
                       <div key={gi} className="space-y-1">

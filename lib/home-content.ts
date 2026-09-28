@@ -83,14 +83,20 @@ export type HomeLookbookProduct = {
   label: string;
   category: string;
   image: string;
+  eyebrow?: string;
   detailTitle?: string;
   description?: string;
+  galleryEyebrow?: string;
+  galleryTitle?: string;
   gallery?: string[];
 };
 
 export type LookbookProductDetail = HomeLookbookProduct & {
+  eyebrow: string;
   detailTitle: string;
   description: string;
+  galleryEyebrow: string;
+  galleryTitle: string;
   gallery: string[];
 };
 
@@ -103,6 +109,11 @@ export function resolveProductDetail(
   const gallery = (product.gallery ?? []).filter(Boolean);
   return {
     ...product,
+    eyebrow: product.eyebrow?.trim() || "Thiết kế để truyền cảm hứng",
+    galleryEyebrow: product.galleryEyebrow?.trim() || "Từ ý tưởng đến thành phẩm",
+    galleryTitle:
+      product.galleryTitle?.trim() ||
+      "Khám phá sự kết hợp giữa sáng tạo và công nghệ ở từng công đoạn",
     detailTitle:
       product.detailTitle?.trim() ||
       fallback?.detailTitle ||
@@ -275,8 +286,11 @@ export function newLookbookProduct(
     label: "",
     category: "BLAZER",
     image: "",
+    eyebrow: "",
     detailTitle: "",
     description: "",
+    galleryEyebrow: "",
+    galleryTitle: "",
     gallery: [],
     ...partial,
   };

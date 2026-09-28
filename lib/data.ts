@@ -127,7 +127,7 @@ export const products = [
       "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1000&q=80",
     detailTitle: "Form dáng chuẩn — đường may tinh tế",
     description:
-      "Blazer là dòng sản phẩm chủ lực của Phú Thành Nam. Mỗi mẫu áo bắt đầu từ techpack và rập chuẩn, được phòng mẫu dựng proto, chỉnh fit nhiều vòng để vai áo, ve áo và độ ôm thân đạt đúng tinh thần thiết kế của thương hiệu.\n\nChúng tôi kiểm soát chặt từ khâu chọn vải, ép keo, may ráp đến ủi định hình và KCS theo tiêu chuẩn AQL — đảm bảo từng chiếc blazer đồng đều về chất lượng trên toàn bộ lô hàng xuất khẩu.",
+      "Blazer là dòng sản phẩm chủ lực của Phú Thành Nam. Mỗi mẫu áo bắt đầu từ **techpack và rập chuẩn**, được phòng mẫu dựng proto, **chỉnh fit nhiều vòng** để vai áo, ve áo và độ ôm thân đạt đúng tinh thần thiết kế của thương hiệu.\n\nChúng tôi kiểm soát chặt từ khâu **chọn vải, ép keo, may ráp đến ủi định hình** và **KCS theo tiêu chuẩn AQL** — đảm bảo từng chiếc blazer đồng đều về chất lượng trên toàn bộ lô hàng xuất khẩu.",
     gallery: [
       "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1200&q=80",
       "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=80",
@@ -146,7 +146,7 @@ export const products = [
       "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=1000&q=80",
     detailTitle: "Ấm áp, sang trọng — bền bỉ theo mùa",
     description:
-      "Áo coat đòi hỏi tay nghề cao ở khâu xử lý vải dày, lót trong và đường may chịu lực. Đội ngũ PTN phát triển mẫu từ phác thảo, thử nghiệm chất liệu và phụ liệu để áo giữ form đẹp, đứng dáng qua nhiều mùa sử dụng.\n\nToàn bộ quy trình từ cắt CNC, may ráp đến hoàn thiện được giám sát theo SOP, giúp thương hiệu yên tâm về tiến độ và chất lượng cho mùa thu đông.",
+      "Áo coat đòi hỏi tay nghề cao ở khâu **xử lý vải dày, lót trong và đường may chịu lực**. Đội ngũ PTN phát triển mẫu từ phác thảo, thử nghiệm chất liệu và phụ liệu để áo **giữ form đẹp, đứng dáng** qua nhiều mùa sử dụng.\n\nToàn bộ quy trình từ cắt CNC, may ráp đến hoàn thiện được **giám sát theo SOP**, giúp thương hiệu yên tâm về tiến độ và chất lượng cho mùa thu đông.",
     gallery: [
       "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=1200&q=80",
       "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=80",
@@ -165,7 +165,7 @@ export const products = [
       "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=1000&q=80",
     detailTitle: "Năng động, bền chắc — chuẩn xuất khẩu",
     description:
-      "Jacket tại Phú Thành Nam được sản xuất trên dây chuyền chuyên biệt cho chất liệu kỹ thuật: dù, nỉ, denim và vải phối. Chúng tôi xử lý tốt khóa kéo, bo tay, đường diễu và các chi tiết túi phức tạp.\n\nMỗi đơn hàng đều trải qua kiểm tra đường may, độ bền phụ liệu và thông số size trước khi đóng gói — đáp ứng yêu cầu khắt khe của các thị trường quốc tế.",
+      "Jacket tại Phú Thành Nam được sản xuất trên **dây chuyền chuyên biệt cho chất liệu kỹ thuật**: dù, nỉ, denim và vải phối. Chúng tôi xử lý tốt **khóa kéo, bo tay, đường diễu** và các chi tiết túi phức tạp.\n\nMỗi đơn hàng đều trải qua kiểm tra đường may, độ bền phụ liệu và thông số size trước khi đóng gói — đáp ứng yêu cầu khắt khe của các **thị trường quốc tế**.",
     gallery: [
       "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=1200&q=80",
       "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=80",
@@ -184,7 +184,7 @@ export const products = [
       "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=1000&q=80",
     detailTitle: "Vừa vặn, thoải mái — tỉ mỉ từng chi tiết",
     description:
-      "Quần pant là dòng sản phẩm đa dạng từ âu, kaki đến casual. Phòng mẫu của PTN tối ưu rập để quần đứng dáng, vừa vặn ở eo, đáy và ống — phù hợp nhiều size chart khác nhau của thương hiệu.\n\nChúng tôi kiểm soát độ đồng đều đường may, cạp, túi và khuy nút trên từng lô hàng, đảm bảo sản phẩm đạt chuẩn trước khi xuất xưởng.",
+      "Quần pant là dòng sản phẩm đa dạng từ âu, kaki đến casual. Phòng mẫu của PTN **tối ưu rập** để quần đứng dáng, **vừa vặn ở eo, đáy và ống** — phù hợp nhiều size chart khác nhau của thương hiệu.\n\nChúng tôi kiểm soát độ đồng đều đường may, **cạp, túi và khuy nút** trên từng lô hàng, đảm bảo sản phẩm đạt chuẩn trước khi xuất xưởng.",
     gallery: [
       "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=1200&q=80",
       "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=80",
