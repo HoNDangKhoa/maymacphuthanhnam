@@ -90,6 +90,35 @@ body {
   animation-play-state: paused;
 }
 
+.service-card-content {
+  display: grid;
+  grid-template-rows: 1fr auto 0fr;
+  grid-template-columns: 0fr minmax(0, auto) 1fr;
+  transition:
+    grid-template-rows 1s cubic-bezier(0.65, 0, 0.35, 1),
+    grid-template-columns 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.group:hover .service-card-content {
+  grid-template-rows: 1fr auto 1fr;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
+}
+
+@keyframes lookbook-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lookbook-fade {
+  animation: lookbook-fade 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .footer-wordmark {
   margin-bottom: -0.1em;
 }

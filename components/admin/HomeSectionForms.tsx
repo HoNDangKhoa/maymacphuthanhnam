@@ -698,6 +698,94 @@ export function LookbookEditor({ initial }: { initial: HomeLookbookContent }) {
                   />
                 </div>
               </div>
+              <div className="mt-5 space-y-3 border-t border-black/5 pt-5">
+                <p className="text-sm font-semibold text-ink">
+                  Trang chi tiết sản phẩm
+                </p>
+                <div>
+                  <Label>Tiêu đề chi tiết</Label>
+                  <Input
+                    placeholder="Form dáng chuẩn — đường may tinh tế"
+                    value={product.detailTitle ?? ""}
+                    onChange={(e) => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        detailTitle: e.target.value,
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>Mô tả (xuống 2 dòng để tách đoạn)</Label>
+                  <Textarea
+                    rows={5}
+                    value={product.description ?? ""}
+                    onChange={(e) => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        description: e.target.value,
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>Thư viện ảnh chi tiết</Label>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {(product.gallery ?? []).map((src, gi) => (
+                      <div key={gi} className="space-y-1">
+                        <ImageDropzone
+                          value={src}
+                          onChange={(url) => {
+                            const products = [...form.products];
+                            const gallery = [...(product.gallery ?? [])];
+                            gallery[gi] = url;
+                            products[index] = { ...product, gallery };
+                            setForm({ ...form, products });
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-red-600"
+                          onClick={() => {
+                            const products = [...form.products];
+                            products[index] = {
+                              ...product,
+                              gallery: (product.gallery ?? []).filter(
+                                (_, j) => j !== gi,
+                              ),
+                            };
+                            setForm({ ...form, products });
+                          }}
+                        >
+                          Xóa ảnh
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={() => {
+                      const products = [...form.products];
+                      products[index] = {
+                        ...product,
+                        gallery: [...(product.gallery ?? []), ""],
+                      };
+                      setForm({ ...form, products });
+                    }}
+                  >
+                    + Thêm ảnh
+                  </Button>
+                  <p className="mt-2 text-xs text-ink/50">
+                    Để trống sẽ dùng nội dung và ảnh mặc định.
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 className="mt-3 text-xs font-semibold text-red-600"

@@ -83,7 +83,41 @@ export type HomeLookbookProduct = {
   label: string;
   category: string;
   image: string;
+  detailTitle?: string;
+  description?: string;
+  gallery?: string[];
 };
+
+export type LookbookProductDetail = HomeLookbookProduct & {
+  detailTitle: string;
+  description: string;
+  gallery: string[];
+};
+
+export function resolveProductDetail(
+  product: HomeLookbookProduct,
+): LookbookProductDetail {
+  const fallback = fallbackProducts.find(
+    (p) => p.id === product.id || p.category === product.category,
+  );
+  const gallery = (product.gallery ?? []).filter(Boolean);
+  return {
+    ...product,
+    detailTitle:
+      product.detailTitle?.trim() ||
+      fallback?.detailTitle ||
+      `${product.name} — chuẩn xuất khẩu`,
+    description:
+      product.description?.trim() ||
+      fallback?.description ||
+      `${product.name} được Phú Thành Nam phát triển mẫu và sản xuất theo tiêu chuẩn xuất khẩu, kiểm soát chất lượng AQL trên từng lô hàng.`,
+    gallery: gallery.length
+      ? gallery
+      : fallback?.id === product.id && fallback.gallery.length
+        ? fallback.gallery
+        : [product.image].filter(Boolean),
+  };
+}
 
 export type HomeLookbookContent = {
   eyebrow: string;
@@ -241,6 +275,9 @@ export function newLookbookProduct(
     label: "",
     category: "BLAZER",
     image: "",
+    detailTitle: "",
+    description: "",
+    gallery: [],
     ...partial,
   };
 }
