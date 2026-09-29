@@ -46,7 +46,7 @@ export async function Footer() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-brass-bright">
+          <p className="text-base font-semibold text-brass-bright">
             Về công ty
           </p>
           <ul className="mt-4 space-y-2.5">
@@ -64,7 +64,7 @@ export async function Footer() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-brass-bright">
+          <p className="text-base font-semibold text-brass-bright">
             Dịch vụ
           </p>
           <ul className="mt-4 space-y-2.5">
@@ -82,7 +82,7 @@ export async function Footer() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-brass-bright">
+          <p className="text-base font-semibold text-brass-bright">
             Liên hệ
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-paper/70">

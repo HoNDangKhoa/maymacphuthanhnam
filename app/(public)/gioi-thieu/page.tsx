@@ -19,7 +19,7 @@ export default async function AboutPage() {
   return (
     <div className="bg-paper pt-32 md:pt-40 pb-20 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-sm font-semibold text-brass">
+        <p className="text-base font-semibold text-brass md:text-lg">
           Về PTN
         </p>
         <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl lg:text-6xl">

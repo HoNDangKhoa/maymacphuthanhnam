@@ -117,7 +117,7 @@ export function ContactForm() {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <Button type="submit" className="h-12 w-full rounded-full" disabled={loading}>
+      <Button type="submit" className="h-11 w-full rounded-full" disabled={loading}>
         {loading ? "Đang gửi…" : "Gửi liên hệ"}
       </Button>
     </form>

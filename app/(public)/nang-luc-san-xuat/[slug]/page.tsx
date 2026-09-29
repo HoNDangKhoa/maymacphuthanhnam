@@ -73,7 +73,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
             </PillLink>
           </div>
           <div>
-            <p className="text-sm font-semibold text-brass">
+            <p className="text-base font-semibold text-brass md:text-lg">
               Bài liên quan
             </p>
             <ul className="mt-4 space-y-4">

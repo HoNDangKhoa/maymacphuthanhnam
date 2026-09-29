@@ -67,7 +67,7 @@ export function RequestFormSection({
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-12 w-full rounded-full bg-accent text-paper hover:bg-accent-hover"
+                className="h-11 w-full rounded-full bg-accent text-paper hover:bg-accent-hover"
               >
                 {loading ? "Đang gửi…" : "Gửi thông tin"}
               </Button>

@@ -18,14 +18,14 @@ const variants: Record<Variant, { pill: string; icon: string }> = {
 
 const sizes: Record<Size, { pill: string; icon: string; arrow: number }> = {
   md: {
-    pill: "gap-4 py-2 pr-7 pl-2 text-base",
-    icon: "h-11 w-11 md:h-12 md:w-12",
-    arrow: 18,
+    pill: "gap-3 py-1 pr-6 pl-1 text-[15px] md:text-base",
+    icon: "h-9 w-9 md:h-10 md:w-10",
+    arrow: 17,
   },
   sm: {
-    pill: "gap-3 py-1.5 pr-5 pl-1.5 text-sm",
-    icon: "h-9 w-9",
-    arrow: 16,
+    pill: "gap-2.5 py-1 pr-5 pl-1 text-sm",
+    icon: "h-8 w-8",
+    arrow: 15,
   },
 };
 
