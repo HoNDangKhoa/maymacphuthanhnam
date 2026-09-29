@@ -33,7 +33,7 @@ export default async function ContactPage() {
           <iframe
             title="Bản đồ Phú Thành Nam"
             src={resolveMapEmbed(settings.mapsEmbedUrl)}
-            className="h-72 w-full grayscale md:h-96"
+            className="h-72 w-full md:h-96"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
