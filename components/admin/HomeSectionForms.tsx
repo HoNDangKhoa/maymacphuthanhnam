@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
 import { ImageDropzone } from "@/components/admin/BrandAssetForm";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
@@ -23,6 +24,7 @@ import type {
   HomeTestimonialsContent,
   HomeTrustContent,
 } from "@/lib/home-content";
+import { toRichHtml } from "@/lib/rich-text";
 import {
   STAT_ICON_OPTIONS,
   defaultStatIcon,
@@ -112,7 +114,7 @@ export function StatsEditor({ initial }: { initial: HomeStatItem[] }) {
         <SaveBar pending={pending} message={message} />
         <div className="space-y-4">
           {items.map((item, index) => (
-            <AdminCard key={item.id} title={`Mục ${index + 1}`}>
+            <AdminCard key={index} title={`Mục ${index + 1}`}>
               <div className="grid gap-3 md:grid-cols-4">
                 <div>
                   <Label>Giá trị số</Label>
@@ -390,7 +392,10 @@ export function TestimonialsEditor({
   initial: HomeTestimonialsContent;
 }) {
   const router = useRouter();
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState(() => ({
+    ...initial,
+    items: initial.items.map((t) => ({ ...t, quote: toRichHtml(t.quote) })),
+  }));
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -445,14 +450,16 @@ export function TestimonialsEditor({
               <div className="space-y-3">
                 <div>
                   <Label>Nội dung</Label>
-                  <Textarea
-                    rows={4}
+                  <TipTapEditor
+                    height={260}
                     value={item.quote}
-                    onChange={(e) => {
-                      const items = [...form.items];
-                      items[index] = { ...item, quote: e.target.value };
-                      setForm({ ...form, items });
-                    }}
+                    onChange={(html) =>
+                      setForm((prev) => {
+                        const items = [...prev.items];
+                        items[index] = { ...items[index], quote: html };
+                        return { ...prev, items };
+                      })
+                    }
                   />
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
@@ -692,7 +699,9 @@ export function HomeChromeEditor({
 
 export function AboutEditor({ initial }: { initial: AboutSectionItem[] }) {
   const router = useRouter();
-  const [items, setItems] = useState(initial);
+  const [items, setItems] = useState(() =>
+    initial.map((item) => ({ ...item, content: toRichHtml(item.content) })),
+  );
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -716,7 +725,7 @@ export function AboutEditor({ initial }: { initial: AboutSectionItem[] }) {
         <SaveBar pending={pending} message={message} />
         <div className="space-y-4">
           {items.map((item, index) => (
-            <AdminCard key={item.id} title={`Mục ${index + 1}`}>
+            <AdminCard key={index} title={`Mục ${index + 1}`}>
               <div className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
@@ -744,14 +753,16 @@ export function AboutEditor({ initial }: { initial: AboutSectionItem[] }) {
                 </div>
                 <div>
                   <Label>Nội dung</Label>
-                  <Textarea
-                    rows={5}
+                  <TipTapEditor
+                    height={320}
                     value={item.content}
-                    onChange={(e) => {
-                      const next = [...items];
-                      next[index] = { ...item, content: e.target.value };
-                      setItems(next);
-                    }}
+                    onChange={(html) =>
+                      setItems((prev) => {
+                        const next = [...prev];
+                        next[index] = { ...next[index], content: html };
+                        return next;
+                      })
+                    }
                   />
                 </div>
                 <button

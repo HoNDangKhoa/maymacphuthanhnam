@@ -2,6 +2,7 @@
 
 import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import type { HomeTestimonialsContent } from "@/lib/home-content";
+import { toRichHtml } from "@/lib/rich-text";
 
 export function TestimonialsSection({
   content,
@@ -33,9 +34,10 @@ export function TestimonialsSection({
                 “
               </span>
 
-              <p className="flex-1 text-[15px] leading-relaxed text-ink/80 transition group-hover:text-white/90 group-focus-visible:text-white/90 md:text-base">
-                “{t.quote}”
-              </p>
+              <div
+                className="flex-1 space-y-3 text-[15px] leading-relaxed text-ink/80 transition group-hover:text-white/90 group-focus-visible:text-white/90 md:text-base [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+                dangerouslySetInnerHTML={{ __html: toRichHtml(t.quote) }}
+              />
 
               <footer className="mt-8 flex items-center gap-3">
                 <div

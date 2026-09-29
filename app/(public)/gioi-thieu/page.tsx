@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { TocSidebar } from "@/components/about/TocSidebar";
 import { getSiteSettings } from "@/lib/queries";
+import { toRichHtml } from "@/lib/rich-text";
 
 export const dynamic = "force-dynamic";
 
@@ -49,11 +50,10 @@ export default async function AboutPage() {
                 <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">
                   {section.title}
                 </h2>
-                <div className="prose-ptn mt-6 max-w-none">
-                  <p className="font-display text-xl leading-relaxed text-ink md:text-2xl">
-                    {section.content}
-                  </p>
-                </div>
+                <div
+                  className="prose-ptn mt-6 max-w-none text-lg md:text-xl"
+                  dangerouslySetInnerHTML={{ __html: toRichHtml(section.content) }}
+                />
               </section>
             ))}
           </div>

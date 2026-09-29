@@ -15,6 +15,7 @@ import {
   resolveProductDetail,
 } from "@/lib/home-content";
 import { getSiteSettings } from "@/lib/queries";
+import { stripHtml, toRichHtml } from "@/lib/rich-text";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -38,28 +39,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const detail = resolveProductDetail(product);
   return {
     title: product.name,
-    description: detail.description.slice(0, 160),
+    description: stripHtml(detail.description).slice(0, 160),
   };
 }
 
 function Bracket({ children }: { children: string }) {
   return <p className="text-sm text-ink/45 md:text-base">[{children}]</p>;
-}
-
-function RichText({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-        part.startsWith("**") && part.endsWith("**") ? (
-          <strong key={i} className="font-semibold text-ink">
-            {part.slice(2, -2)}
-          </strong>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
 }
 
 export default async function ProductDetailPage({ params }: Props) {
@@ -72,10 +57,6 @@ export default async function ProductDetailPage({ params }: Props) {
   const category = categoryInfoOf(catalog, product.category);
 
   const detail = resolveProductDetail(product);
-  const paragraphs = detail.description
-    .split(/\n{2,}|\r\n\r\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
   const related = [
     ...products.filter(
       (p) => p.id !== product.id && p.category === product.category,
@@ -133,13 +114,10 @@ export default async function ProductDetailPage({ params }: Props) {
           <h2 className="mt-4 font-display text-3xl leading-tight font-medium tracking-tight text-ink md:text-4xl lg:text-[2.75rem]">
             {detail.detailTitle}
           </h2>
-          <div className="mt-8 space-y-5 text-base leading-[1.75] text-ink/80 md:text-lg">
-            {paragraphs.map((p, i) => (
-              <p key={i}>
-                <RichText text={p} />
-              </p>
-            ))}
-          </div>
+          <div
+            className="prose-ptn prose-ptn-center mt-8 text-base md:text-lg [&_strong]:text-ink"
+            dangerouslySetInnerHTML={{ __html: toRichHtml(detail.description) }}
+          />
           <PillLink href="/lien-he" variant="dark" className="mt-10">
             Liên hệ báo giá
           </PillLink>

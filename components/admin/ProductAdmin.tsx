@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
 import { ImageDropzone } from "@/components/admin/BrandAssetForm";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
@@ -23,6 +24,7 @@ import {
   setProductPosition,
   setProductVisible,
 } from "@/lib/actions";
+import { toRichHtml } from "@/lib/rich-text";
 import { cn } from "@/lib/utils";
 import {
   slugify,
@@ -348,7 +350,10 @@ export function ProductForm({
   viewHref?: string;
 }) {
   const router = useRouter();
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState(() => ({
+    ...initial,
+    description: toRichHtml(initial.description),
+  }));
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -522,11 +527,11 @@ export function ProductForm({
               </div>
             </div>
             <div>
-              <Label>Mô tả (xuống 2 dòng để tách đoạn, **chữ** để in đậm)</Label>
-              <Textarea
-                rows={7}
+              <Label>Mô tả chi tiết</Label>
+              <TipTapEditor
+                height={360}
                 value={form.description ?? ""}
-                onChange={(e) => set({ description: e.target.value })}
+                onChange={(html) => set({ description: html })}
               />
             </div>
           </div>

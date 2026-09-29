@@ -208,6 +208,60 @@ body {
   padding-left: 1.25rem;
 }
 
+.prose-ptn ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.prose-ptn ul,
+.prose-ptn ol {
+  margin-bottom: 1rem;
+}
+
+.prose-ptn li {
+  margin-bottom: 0.35rem;
+}
+
+.prose-ptn-center ul,
+.prose-ptn-center ol {
+  list-style-position: inside;
+  padding-left: 0;
+}
+
+.prose-ptn h1 {
+  font-size: 2rem;
+  margin: 2rem 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.prose-ptn h4 {
+  font-size: 1.1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.prose-ptn strong {
+  font-weight: 600;
+}
+
+.prose-ptn a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-ptn img,
+.prose-ptn video,
+.prose-ptn iframe {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1.5rem auto;
+}
+
+.prose-ptn > :last-child {
+  margin-bottom: 0;
+}
+
 .prose-ptn table {
   width: 100%;
   border-collapse: collapse;

@@ -37,6 +37,7 @@ export function TipTapEditor({
       resize: true as const,
       skin: "oxide",
       content_css: "default",
+      entity_encoding: "raw" as const,
       plugins: [
         "advlist",
         "anchor",
