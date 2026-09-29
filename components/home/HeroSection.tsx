@@ -19,18 +19,23 @@ export type HeroContent = {
   ctaHref: string;
 };
 
+const isVideo = (url: string) => /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
+
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1800&q=80";
 
 export function HeroSection({
   slides = [],
+  videoUrl = "",
   content,
 }: {
   slides?: HeroSlide[];
+  videoUrl?: string;
   content: HeroContent;
 }) {
-  const images =
-    slides.length > 0
+  const images = videoUrl
+    ? [{ id: "video", title: "", link: "", imageUrl: videoUrl }]
+    : slides.length > 0
       ? slides
       : [{ id: "fallback", title: "", link: "", imageUrl: FALLBACK_IMAGE }];
   const [index, setIndex] = useState(0);
@@ -48,17 +53,34 @@ export function HeroSection({
 
   return (
     <section className="relative min-h-[92svh] overflow-hidden bg-ink md:min-h-[100svh]">
-      {images.map((slide, i) => (
-        <div
-          key={slide.id}
-          className={cn(
-            "absolute inset-0 bg-cover bg-center transition-opacity duration-1000",
-            i === index ? "opacity-100" : "opacity-0",
-          )}
-          style={{ backgroundImage: `url(${slide.imageUrl})` }}
-          aria-hidden={i !== index}
-        />
-      ))}
+      {images.map((slide, i) =>
+        isVideo(slide.imageUrl) ? (
+          <video
+            key={slide.id}
+            src={slide.imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={videoUrl ? slides[0]?.imageUrl : undefined}
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
+              i === index ? "opacity-100" : "opacity-0",
+            )}
+            aria-hidden
+          />
+        ) : (
+          <div
+            key={slide.id}
+            className={cn(
+              "absolute inset-0 bg-cover bg-center transition-opacity duration-1000",
+              i === index ? "opacity-100" : "opacity-0",
+            )}
+            style={{ backgroundImage: `url(${slide.imageUrl})` }}
+            aria-hidden={i !== index}
+          />
+        ),
+      )}
       <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/70 to-ink/25" />
       <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-ink/30" />
 

@@ -162,6 +162,10 @@ export function MediaListManager({
             <ImageDropzone
               value={editing.imageUrl}
               onChange={(url) => setEditing({ ...editing, imageUrl: url })}
+              {...(kind === "slideshow" && {
+                accept: "image/*,video/mp4,video/webm",
+                hint: "Ảnh (jpg, png, webp) hoặc video mp4/webm — khuyến nghị 1920×1080",
+              })}
             />
           </form>
         </AdminCard>
@@ -236,7 +240,14 @@ export function MediaListManager({
                   </td>
                   <td className="px-3 py-3">
                     <div className="relative h-12 w-16 overflow-hidden rounded-lg bg-black/5">
-                      {row.imageUrl ? (
+                      {/\.(mp4|webm|ogg)(\?|#|$)/i.test(row.imageUrl) ? (
+                        <video
+                          src={row.imageUrl}
+                          muted
+                          preload="metadata"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : row.imageUrl ? (
                         <Image
                           src={row.imageUrl}
                           alt={row.title}

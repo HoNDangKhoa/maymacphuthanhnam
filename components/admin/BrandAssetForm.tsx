@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { AdminCard } from "@/components/admin/AdminChrome";
 import { Label } from "@/components/ui/input";
 import { saveBrandAsset } from "@/lib/actions";
+import { uploadAsset } from "@/lib/upload-client";
 import { cn } from "@/lib/utils";
 
 export function FormSaveBar({
@@ -50,28 +51,16 @@ export function ImageDropzone({
   accept?: string;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const isVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(value) || accept.includes("video");
 
   async function upload(file: File) {
     setUploading(true);
+    setProgress(0);
     setError("");
     try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        url?: string;
-        error?: string;
-      };
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || `Upload thất bại (${res.status})`);
-      }
-      onChange(data.url);
+      onChange(await uploadAsset(file, setProgress));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload thất bại");
     } finally {
@@ -116,7 +105,9 @@ export function ImageDropzone({
         </>
       )}
       <label className="cursor-pointer rounded-xl bg-[#f59e0b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#d97706]">
-        {uploading ? "Đang tải…" : "Chọn file"}
+        {uploading
+          ? `Đang tải… ${progress ? `${Math.round(progress)}%` : ""}`
+          : "Chọn file"}
         <input
           type="file"
           accept={accept}

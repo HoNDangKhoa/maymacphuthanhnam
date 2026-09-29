@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 
-const ALLOWED_MIME = [
+export const ALLOWED_MIME = [
   "image/jpeg",
   "image/png",
   "image/webp",
@@ -24,6 +24,18 @@ export function isAllowedUpload(file: File) {
   );
 }
 
+export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
+
+export function getBlobToken() {
+  // Guard against corrupted env values (CLI prompt leftovers like "\ny" / "\\ny")
+  const rawBlob = process.env.BLOB_READ_WRITE_TOKEN ?? "";
+  return (
+    rawBlob.match(/vercel_blob_rw_[A-Za-z0-9_]+/)?.[0] ||
+    rawBlob.replace(/\\n/g, "\n").split(/\r?\n/)[0]?.trim().replace(/\s+y$/i, "").trim() ||
+    ""
+  );
+}
+
 /**
  * Upload file:
  * - Production / có BLOB_READ_WRITE_TOKEN → Vercel Blob
@@ -40,12 +52,7 @@ export async function uploadFile(
   const ext = path.extname(file.name) || ".bin";
   const filename = `${folder}/${randomUUID()}${ext}`;
 
-  // Guard against corrupted env values (CLI prompt leftovers like "\ny" / "\\ny")
-  const rawBlob = process.env.BLOB_READ_WRITE_TOKEN ?? "";
-  const blobToken =
-    rawBlob.match(/vercel_blob_rw_[A-Za-z0-9_]+/)?.[0] ||
-    rawBlob.replace(/\\n/g, "\n").split(/\r?\n/)[0]?.trim().replace(/\s+y$/i, "").trim() ||
-    "";
+  const blobToken = getBlobToken();
   if (blobToken) {
     const blob = await put(filename, file, {
       access: "public",

@@ -3,15 +3,9 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
+import { uploadAsset } from "@/lib/upload-client";
 
-async function uploadImage(file: File) {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch("/api/upload", { method: "POST", body: form });
-  if (!res.ok) throw new Error("Upload failed");
-  const data = (await res.json()) as { url: string };
-  return data.url;
-}
+const uploadImage = (file: File) => uploadAsset(file);
 
 /**
  * Rich text editor đầy đủ toolbar (kiểu CKEditor).

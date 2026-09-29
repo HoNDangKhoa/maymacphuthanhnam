@@ -11,20 +11,19 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import {
-  AdminCard,
-  AdminPageHeader,
-  ContentToolbar,
-} from "@/components/admin/AdminChrome";
+import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
 import { ImageDropzone } from "@/components/admin/BrandAssetForm";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
   deleteProduct,
-  moveProduct,
+  deleteProducts,
   saveProduct,
   saveProductCategories,
+  setProductPosition,
+  setProductVisible,
 } from "@/lib/actions";
+import { cn } from "@/lib/utils";
 import {
   slugify,
   type HomeLookbookProduct,
@@ -36,6 +35,40 @@ export type CategoryOption = { key: string; name: string };
 const selectClass =
   "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm";
 
+function Switch({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      className={cn(
+        "relative h-6 w-11 rounded-full transition disabled:opacity-60",
+        checked ? "bg-[#f59e0b]" : "bg-black/15",
+      )}
+      onClick={onChange}
+    >
+      <span
+        className={cn(
+          "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition",
+          checked && "translate-x-5",
+        )}
+      />
+    </button>
+  );
+}
+
+const actionLink =
+  "inline-flex items-center gap-1 rounded-lg border border-black/10 px-2.5 py-1.5 text-xs font-semibold hover:bg-black/5";
+
 export function ProductList({
   products,
   categories,
@@ -46,6 +79,7 @@ export function ProductList({
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [pending, startTransition] = useTransition();
   const nameOf = (key: string) =>
     categories.find((c) => c.key === key)?.name ?? key;
@@ -55,28 +89,67 @@ export function ProductList({
     return products.filter(
       (p) =>
         (!category || p.category === category) &&
-        (!q || p.name.toLowerCase().includes(q)),
+        (!q ||
+          p.name.toLowerCase().includes(q) ||
+          p.href.toLowerCase().includes(q)),
     );
   }, [products, query, category]);
-  const filtered = Boolean(query.trim() || category);
+
+  const run = (fn: () => Promise<unknown>) =>
+    startTransition(async () => {
+      await fn();
+      router.refresh();
+    });
 
   return (
     <div>
-      <AdminPageHeader title="Danh sách sản phẩm" />
-      <ContentToolbar
-        createHref="/admin/products/new"
-        createLabel="Thêm sản phẩm"
-        searchPlaceholder="Tìm theo tên sản phẩm"
-        searchValue={query}
-        onSearchChange={setQuery}
-      />
-      <AdminCard title={`Sản phẩm (${rows.length})`}>
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Label className="mb-0">Lọc danh mục</Label>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Link
+          href="/admin/products/new"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#f59e0b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#d97706]"
+        >
+          + Thêm mới
+        </Link>
+        <button
+          type="button"
+          disabled={!selected.length || pending}
+          onClick={() => {
+            if (!confirm(`Xóa ${selected.length} sản phẩm đã chọn?`)) return;
+            run(async () => {
+              await deleteProducts(selected);
+              setSelected([]);
+            });
+          }}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
+            !selected.length
+              ? "cursor-not-allowed bg-[#f8b4b4]/70"
+              : "bg-[#f87171] hover:bg-[#ef4444]",
+          )}
+        >
+          Xóa tất cả
+        </button>
+        <Link
+          href="/admin/product-categories"
+          className="ml-auto inline-flex items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-black/5"
+        >
+          Danh mục sản phẩm
+        </Link>
+      </div>
+
+      <AdminCard title="Danh sách sản phẩm">
+        <div className="mb-4 flex flex-wrap gap-3">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tìm kiếm nhanh"
+            className="min-w-[220px] flex-1 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#f59e0b]"
+          />
           <select
-            className={`${selectClass} max-w-xs`}
+            aria-label="Lọc danh mục"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#f59e0b]"
           >
             <option value="">Tất cả danh mục</option>
             {categories.map((c) => (
@@ -85,132 +158,148 @@ export function ProductList({
               </option>
             ))}
           </select>
-          <Link
-            href="/admin/product-categories"
-            className="text-sm font-semibold text-[#d97706] underline"
-          >
-            Quản lý danh mục
-          </Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-[#f3f4f6] text-xs font-semibold text-ink/60">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead className="bg-[#f3f4f6] text-xs font-semibold text-ink/60 uppercase">
               <tr>
+                <th className="px-3 py-3">
+                  <input
+                    type="checkbox"
+                    aria-label="Chọn tất cả"
+                    checked={rows.length > 0 && selected.length === rows.length}
+                    onChange={(e) =>
+                      setSelected(e.target.checked ? rows.map((r) => r.id) : [])
+                    }
+                  />
+                </th>
                 <th className="px-3 py-3">STT</th>
-                <th className="px-3 py-3">Ảnh</th>
+                <th className="px-3 py-3">Hình</th>
                 <th className="px-3 py-3">Tên sản phẩm</th>
-                <th className="px-3 py-3">Danh mục</th>
-                <th className="px-3 py-3">Đường dẫn</th>
-                <th className="px-3 py-3 text-right">Thao tác</th>
+                <th className="px-3 py-3">Ảnh chi tiết</th>
+                <th className="px-3 py-3">Hiển thị</th>
+                <th className="px-3 py-3">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((p) => {
-                const index = products.findIndex((x) => x.id === p.id);
+                const position = products.findIndex((x) => x.id === p.id) + 1;
+                const visible = p.isVisible !== false;
+                const editHref = `/admin/products/${encodeURIComponent(p.id)}`;
                 return (
                   <tr key={p.id} className="border-t border-black/5">
-                    <td className="px-3 py-3 font-semibold">{index + 1}</td>
                     <td className="px-3 py-3">
-                      <div className="relative h-14 w-11 overflow-hidden rounded-md bg-black/5">
+                      <input
+                        type="checkbox"
+                        aria-label={`Chọn ${p.name}`}
+                        checked={selected.includes(p.id)}
+                        onChange={(e) =>
+                          setSelected((prev) =>
+                            e.target.checked
+                              ? [...prev, p.id]
+                              : prev.filter((id) => id !== p.id),
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <input
+                        key={`${p.id}-${position}`}
+                        type="number"
+                        min={1}
+                        max={products.length}
+                        aria-label="Thứ tự"
+                        className="w-14 rounded-lg border border-black/10 px-2 py-1 text-center font-semibold"
+                        defaultValue={position}
+                        onBlur={(e) => {
+                          const next = Number(e.target.value) || position;
+                          if (next === position) return;
+                          run(() => setProductPosition(p.id, next));
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") e.currentTarget.blur();
+                        }}
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="relative h-12 w-16 overflow-hidden rounded-lg bg-black/5">
                         {p.image ? (
                           <Image
                             src={p.image}
-                            alt=""
+                            alt={p.name}
                             fill
                             className="object-cover"
-                            sizes="44px"
+                            sizes="64px"
                           />
                         ) : null}
                       </div>
                     </td>
-                    <td className="px-3 py-3 font-semibold">
+                    <td className="px-3 py-3">
                       <Link
-                        href={`/admin/products/${encodeURIComponent(p.id)}`}
-                        className="hover:text-[#d97706]"
+                        href={editHref}
+                        className="font-semibold text-ink hover:text-[#f59e0b]"
                       >
                         {p.name}
                       </Link>
+                      <p className="text-xs font-semibold text-ink/40">
+                        {p.href}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-[#f59e0b]">
+                        {nameOf(p.category)}
+                      </p>
                     </td>
-                    <td className="px-3 py-3">{nameOf(p.category)}</td>
-                    <td className="px-3 py-3 text-ink/50">{p.href}</td>
+                    <td className="px-3 py-3 font-semibold text-ink/70">
+                      {(p.gallery ?? []).filter(Boolean).length}
+                    </td>
                     <td className="px-3 py-3">
-                      <div className="flex justify-end gap-1">
-                        <IconButton
-                          label="Lên"
-                          disabled={pending || filtered || index === 0}
-                          onClick={() =>
-                            startTransition(async () => {
-                              await moveProduct(p.id, -1);
-                              router.refresh();
-                            })
-                          }
-                        >
-                          <ArrowUp size={15} />
-                        </IconButton>
-                        <IconButton
-                          label="Xuống"
-                          disabled={
-                            pending || filtered || index === products.length - 1
-                          }
-                          onClick={() =>
-                            startTransition(async () => {
-                              await moveProduct(p.id, 1);
-                              router.refresh();
-                            })
-                          }
-                        >
-                          <ArrowDown size={15} />
-                        </IconButton>
-                        <Link
-                          href={`/admin/products/${encodeURIComponent(p.id)}`}
-                          aria-label="Sửa"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-ink/60 hover:bg-black/5 hover:text-ink"
-                        >
-                          <Pencil size={15} />
+                      <Switch
+                        checked={visible}
+                        disabled={pending}
+                        onChange={() =>
+                          run(() => setProductVisible(p.id, !visible))
+                        }
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <Link href={p.href} target="_blank" className={actionLink}>
+                          <ExternalLink size={14} />
+                          Xem
                         </Link>
-                        <a
-                          href={p.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="Xem trên web"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-ink/60 hover:bg-black/5 hover:text-ink"
-                        >
-                          <ExternalLink size={15} />
-                        </a>
-                        <IconButton
-                          label="Xóa"
-                          danger
+                        <Link href={editHref} className={actionLink}>
+                          <Pencil size={14} />
+                          Sửa
+                        </Link>
+                        <button
+                          type="button"
                           disabled={pending}
+                          className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
                           onClick={() => {
                             if (!confirm(`Xóa sản phẩm "${p.name}"?`)) return;
-                            startTransition(async () => {
-                              await deleteProduct(p.id);
-                              router.refresh();
-                            });
+                            run(() => deleteProduct(p.id));
                           }}
                         >
-                          <Trash2 size={15} />
-                        </IconButton>
+                          <Trash2 size={14} />
+                          Xóa
+                        </button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
-              {!rows.length && (
+              {rows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-10 text-center text-ink/50">
-                    Không có sản phẩm nào.
+                  <td
+                    colSpan={7}
+                    className="px-3 py-10 text-center text-sm font-semibold text-ink/45"
+                  >
+                    Chưa có dữ liệu.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-        {filtered && (
-          <p className="mt-3 text-xs text-ink/50">
-            Bỏ lọc để sắp xếp thứ tự hiển thị.
-          </p>
-        )}
       </AdminCard>
     </div>
   );
@@ -383,6 +472,15 @@ export function ProductForm({
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="flex items-center gap-3 md:col-span-2">
+                <Switch
+                  checked={form.isVisible !== false}
+                  onChange={() => set({ isVisible: form.isVisible === false })}
+                />
+                <span className="text-sm font-semibold text-ink">
+                  Hiển thị trên website
+                </span>
               </div>
               <div>
                 <Label>Nhãn trên ảnh (trang chủ)</Label>

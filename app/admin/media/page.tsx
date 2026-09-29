@@ -1,16 +1,9 @@
-import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
+import { MediaLibrary } from "@/components/admin/MediaLibrary";
+import { listMedia } from "@/lib/media-actions";
 
-export default function Page() {
-  return (
-    <div>
-      <AdminPageHeader title="Thư viện media" />
-      <AdminCard>
-        <p className="text-sm font-semibold text-ink/60">
-          Upload file qua API <code>/api/upload</code> (Vercel Blob trên
-          production). Các ảnh đã upload nằm tại{" "}
-          <code>public/uploads</code> khi chạy local.
-        </p>
-      </AdminCard>
-    </div>
-  );
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const items = await listMedia();
+  return <MediaLibrary items={items} />;
 }

@@ -7,6 +7,7 @@ import { StatsBar } from "@/components/home/StatsBar";
 import { StickyWorkflow } from "@/components/home/StickyWorkflow";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { ValuesSection } from "@/components/home/ValuesSection";
+import { visibleProducts } from "@/lib/home-content";
 import {
   getActiveGallery,
   getActiveWorkflow,
@@ -28,7 +29,11 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection slides={settings.slideshow} content={settings.hero} />
+      <HeroSection
+        slides={settings.slideshow}
+        videoUrl={settings.heroVideoUrl}
+        content={settings.hero}
+      />
       <StatsBar items={settings.homeStats} />
       <ValuesSection content={settings.homeTrust} />
       <ServiceCards
@@ -42,7 +47,12 @@ export default async function HomePage() {
           image: p.thumbnail,
         }))}
       />
-      <ProductLookbook content={settings.homeLookbook} />
+      <ProductLookbook
+        content={{
+          ...settings.homeLookbook,
+          products: visibleProducts(settings.homeLookbook.products),
+        }}
+      />
       <BentoMarqueeGrid
         items={gallery}
         eyebrow={chrome.galleryEyebrow}

@@ -540,15 +540,40 @@ export async function deleteProduct(id: string) {
   revalidatePath("/admin/products");
 }
 
-export async function moveProduct(id: string, delta: -1 | 1) {
+export async function deleteProducts(ids: string[]) {
+  await saveBannerData((data) => ({
+    ...data,
+    homeLookbook: {
+      ...data.homeLookbook,
+      products: data.homeLookbook.products.filter((p) => !ids.includes(p.id)),
+    },
+  }));
+  revalidatePath("/admin/products");
+}
+
+export async function setProductPosition(id: string, position: number) {
   await saveBannerData((data) => {
     const products = [...data.homeLookbook.products];
-    const i = products.findIndex((p) => p.id === id);
-    const j = i + delta;
-    if (i < 0 || j < 0 || j >= products.length) return data;
-    [products[i], products[j]] = [products[j]!, products[i]!];
+    const from = products.findIndex((p) => p.id === id);
+    if (from < 0) return data;
+    const [item] = products.splice(from, 1);
+    const to = Math.min(Math.max(Math.round(position) - 1, 0), products.length);
+    products.splice(to, 0, item!);
     return { ...data, homeLookbook: { ...data.homeLookbook, products } };
   });
+  revalidatePath("/admin/products");
+}
+
+export async function setProductVisible(id: string, isVisible: boolean) {
+  await saveBannerData((data) => ({
+    ...data,
+    homeLookbook: {
+      ...data.homeLookbook,
+      products: data.homeLookbook.products.map((p) =>
+        p.id === id ? { ...p, isVisible } : p,
+      ),
+    },
+  }));
   revalidatePath("/admin/products");
 }
 

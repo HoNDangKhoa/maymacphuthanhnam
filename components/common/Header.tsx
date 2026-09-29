@@ -25,12 +25,20 @@ export function Header({
 }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const isHome = pathname === "/";
   const solid = scrolled || !isHome || open;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      if (Math.abs(y - lastY) < 6) return;
+      setHidden(y > lastY && y > 120);
+      lastY = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -46,7 +54,8 @@ export function Header({
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-300",
+        hidden && !open && "-translate-y-full",
         solid
           ? "border-b border-[var(--line)] bg-paper/95 backdrop-blur-md"
           : "bg-transparent",

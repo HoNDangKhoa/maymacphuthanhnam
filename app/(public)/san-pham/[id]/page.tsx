@@ -6,6 +6,7 @@ import { PillLink } from "@/components/common/PillLink";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import {
+  visibleProducts,
   categoryHref,
   categoryInfoOf,
   findProductByParam,
@@ -21,7 +22,10 @@ export const dynamic = "force-dynamic";
 
 async function findProduct(id: string) {
   const settings = await getSiteSettings();
-  const catalog = settings.homeLookbook;
+  const catalog = {
+    ...settings.homeLookbook,
+    products: visibleProducts(settings.homeLookbook.products),
+  };
   const products = catalog.products;
   const product = findProductByParam(products, id);
   return { product, products, catalog, logoUrl: settings.logoUrl };

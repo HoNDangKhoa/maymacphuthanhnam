@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/products/ProductCard";
 import {
+  visibleProducts,
   categoryHref,
   categoryInfoOf,
   categorySlug,
@@ -16,7 +17,10 @@ export const dynamic = "force-dynamic";
 
 async function load(searchParams: Props["searchParams"]) {
   const settings = await getSiteSettings();
-  const catalog = settings.homeLookbook;
+  const catalog = {
+    ...settings.homeLookbook,
+    products: visibleProducts(settings.homeLookbook.products),
+  };
   const { "danh-muc": slug } = await searchParams;
   const activeKey = slug
     ? catalog.categories.find((c) => categorySlug(c) === slug)

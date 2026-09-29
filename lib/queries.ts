@@ -270,6 +270,7 @@ export async function getSiteSettings() {
         metaDescription: s.metaDescription || "",
         logoUrl: banner.logo.visible ? banner.logo.url : "",
         faviconUrl: banner.favicon.visible ? banner.favicon.url : "",
+        heroVideoUrl: banner.video.visible ? banner.video.url.trim() : "",
         slideshow: banner.slideshow.filter((i) => i.isVisible && i.imageUrl),
         socialFooter: banner.socialFooter.filter((i) => i.isVisible),
         footer: banner.footer,
@@ -299,6 +300,7 @@ export async function getSiteSettings() {
     metaDescription: "",
     logoUrl: "",
     faviconUrl: "",
+    heroVideoUrl: "",
     slideshow: [] as {
       id: string;
       title: string;

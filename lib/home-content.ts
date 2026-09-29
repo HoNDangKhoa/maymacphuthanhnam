@@ -84,6 +84,7 @@ export type HomeTestimonialsContent = {
 export type HomeLookbookProduct = {
   id: string;
   slug?: string;
+  isVisible?: boolean;
   name: string;
   label: string;
   category: string;
@@ -149,6 +150,10 @@ export type HomeLookbookContent = {
   categoryInfo?: Record<string, ProductCategoryInfo>;
   products: HomeLookbookProduct[];
 };
+
+export function visibleProducts<T extends HomeLookbookProduct>(products: T[]) {
+  return products.filter((p) => p.isVisible !== false);
+}
 
 export function productSlug(product: HomeLookbookProduct) {
   return product.slug?.trim() || slugify(product.name) || product.id;

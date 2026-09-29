@@ -15,6 +15,7 @@ import {
   POST_TYPE_LIST_PATH,
   slugify,
 } from "@/lib/cms";
+import { uploadAsset } from "@/lib/upload-client";
 import { cn } from "@/lib/utils";
 
 export type ArticleFormValues = {
@@ -90,12 +91,11 @@ export function PostForm({
   const seoDescCount = metaDescription.length;
 
   async function onUploadThumb(file: File) {
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: form });
-    if (!res.ok) throw new Error("Upload failed");
-    const data = (await res.json()) as { url: string };
-    setThumbnail(data.url);
+    try {
+      setThumbnail(await uploadAsset(file));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload thất bại");
+    }
   }
 
   async function submit(nextIntent: "save" | "save-stay") {
