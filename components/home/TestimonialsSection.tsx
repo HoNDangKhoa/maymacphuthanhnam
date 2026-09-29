@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import type { HomeTestimonialsContent } from "@/lib/home-content";
 
 export function TestimonialsSection({
@@ -10,10 +11,8 @@ export function TestimonialsSection({
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-sm font-semibold text-[#c5a04d]">
-          {content.eyebrow}
-        </p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-ink md:text-4xl">
+        <SectionEyebrow>{content.eyebrow}</SectionEyebrow>
+        <h2 className="mt-5 text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           {content.heading}
         </h2>
         <p className="mt-3 max-w-xl text-sm text-ink/55 md:text-base">

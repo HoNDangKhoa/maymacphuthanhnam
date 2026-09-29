@@ -1,3 +1,4 @@
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import Image from "next/image";
 import { PillLink } from "@/components/common/PillLink";
 import { services as fallbackServices } from "@/lib/data";
@@ -24,8 +25,8 @@ export function ServiceCards({
   return (
     <section id="dich-vu" className="bg-paper py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-sm font-semibold text-accent">{eyebrow}</p>
-        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-5xl">
+        <SectionEyebrow>{eyebrow}</SectionEyebrow>
+        <h2 className="mt-5 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl lg:text-5xl">
           {title}
         </h2>
 

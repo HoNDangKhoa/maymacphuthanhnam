@@ -1,3 +1,4 @@
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import { cn } from "@/lib/utils";
 
 export function SectionTitle({
@@ -16,14 +17,7 @@ export function SectionTitle({
   return (
     <div className={cn("max-w-2xl", className)}>
       {eyebrow && (
-        <p
-          className={cn(
-            "mb-3 text-sm font-semibold",
-            light ? "text-brass-bright" : "text-brass",
-          )}
-        >
-          {eyebrow}
-        </p>
+<SectionEyebrow className="mb-5">{eyebrow}</SectionEyebrow>
       )}
       <h2
         className={cn(

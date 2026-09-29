@@ -83,7 +83,7 @@ function StatItem({
 
   return (
     <div className="flex flex-col items-center gap-3 px-2 text-center md:items-start md:px-4 md:text-left">
-      <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-accent/15 text-accent">
+      <span className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white text-accent shadow-[0_0_0_4px_rgba(255,255,255,0.12)]">
         {iconUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={iconUrl} alt="" className="h-6 w-6 object-contain" />

@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -32,8 +33,8 @@ export function ProductLookbook({ content }: { content: HomeLookbookContent }) {
       className="scroll-mt-24 bg-[#1a1a1a] py-20 text-white md:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <p className="text-sm font-semibold text-accent">{content.eyebrow}</p>
-        <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-tight">
+        <SectionEyebrow>{content.eyebrow}</SectionEyebrow>
+        <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-tight">
           {content.title}
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">

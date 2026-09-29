@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -101,10 +102,7 @@ export function StickyWorkflow({
     <section className="bg-[#1c1c1c] text-paper">
       <div className="mx-auto grid max-w-7xl gap-14 px-5 pt-16 pb-24 md:grid-cols-12 md:gap-10 md:px-8 md:pt-24 md:pb-32">
         <div className="md:col-span-5 md:sticky md:top-32 md:self-start">
-          <p className="flex items-center gap-3 font-mono text-sm tracking-wide text-paper/80">
-            <span className="h-3 w-3 rounded-[3px] bg-accent" aria-hidden />
-            {eyebrow}
-          </p>
+          <SectionEyebrow>{eyebrow}</SectionEyebrow>
           <h2 className="mt-6 max-w-md font-display text-4xl leading-[1.08] font-medium tracking-tight md:text-5xl lg:text-6xl">
             {title}
           </h2>
