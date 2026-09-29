@@ -3,7 +3,9 @@
 import { useMemo, useRef, useState, useTransition } from "react";
 import { AdminCard } from "@/components/admin/AdminChrome";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
-import { saveSiteSettings } from "@/lib/actions";
+import { useRouter } from "next/navigation";
+import { saveSiteSettings, sendTestMail } from "@/lib/actions";
+import { resolveMapEmbed } from "@/lib/site-settings";
 import { cn } from "@/lib/utils";
 
 export type SettingsFormData = {
@@ -60,7 +62,11 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [mailStatus, setMailStatus] = useState("");
   const [values, setValues] = useState(initial);
+  const router = useRouter();
+  const mapSrc = resolveMapEmbed(values.mapsEmbedUrl, values.mapsCoords);
 
   function setField<K extends keyof SettingsFormData>(
     key: K,
@@ -118,8 +124,18 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
         const formData = new FormData(e.currentTarget);
         startTransition(async () => {
           setMessage("");
-          await saveSiteSettings(formData);
-          setMessage("Đã lưu thiết lập.");
+          setError("");
+          try {
+            const res = await saveSiteSettings(formData);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setMessage("Đã lưu thiết lập.");
+            router.refresh();
+          } catch (e) {
+            setError(e instanceof Error ? e.message : "Lưu thất bại, vui lòng thử lại.");
+          }
         });
       }}
     >
@@ -138,10 +154,17 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
             setValues(initial);
             formRef.current?.reset();
             setMessage("");
+            setError("");
           }}
         >
           Làm lại
         </button>
+        {message && (
+          <span className="self-center text-sm font-semibold text-emerald-600">{message}</span>
+        )}
+        {error && (
+          <span className="self-center text-sm font-semibold text-red-600">{error}</span>
+        )}
       </div>
 
       <AdminCard title="Cấu hình mailer">
@@ -195,6 +218,28 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               autoComplete="new-password"
             />
           </div>
+          <div className="flex flex-wrap items-center gap-3 md:col-span-2">
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() =>
+                startTransition(async () => {
+                  setMailStatus("Đang gửi…");
+                  const res = await sendTestMail();
+                  setMailStatus(
+                    res.ok ? `Đã gửi email thử tới ${res.to}.` : `Lỗi: ${res.error}`,
+                  );
+                })
+              }
+              className="rounded-xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold hover:bg-black/5 disabled:opacity-60"
+            >
+              Gửi email thử
+            </button>
+            <span className="text-xs font-semibold text-ink/50">
+              {mailStatus ||
+                "Lưu cấu hình trước khi gửi thử. Gmail cần dùng Mật khẩu ứng dụng (App Password). Email liên hệ mới sẽ gửi tới ô Email ở Thông tin chung."}
+            </span>
+          </div>
         </div>
       </AdminCard>
 
@@ -219,13 +264,33 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
             />
           </div>
           <div>
-            <Label>Địa chỉ:</Label>
-            <Textarea
-              name="headOffice"
-              rows={2}
-              value={values.headOffice}
-              onChange={(e) => setField("headOffice", e.target.value)}
+            <Label>Slogan:</Label>
+            <Input
+              name="slogan"
+              value={values.slogan}
+              onChange={(e) => setField("slogan", e.target.value)}
+              placeholder="Chính xác - Quy mô - Chất lượng"
             />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label>Địa chỉ văn phòng:</Label>
+              <Textarea
+                name="headOffice"
+                rows={2}
+                value={values.headOffice}
+                onChange={(e) => setField("headOffice", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Địa chỉ nhà xưởng:</Label>
+              <Textarea
+                name="factoryAddress"
+                rows={2}
+                value={values.factoryAddress}
+                onChange={(e) => setField("factoryAddress", e.target.value)}
+              />
+            </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -311,6 +376,16 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               rows={3}
               value={values.mapsEmbedUrl}
               onChange={(e) => setField("mapsEmbedUrl", e.target.value)}
+              placeholder='Dán link hoặc toàn bộ mã <iframe> từ Google Maps → Chia sẻ → Nhúng bản đồ'
+            />
+            <p className="mt-1 text-xs font-semibold text-ink/45">
+              Để trống sẽ dùng tọa độ phía trên. Xem trước bản đồ hiển thị ở trang Liên hệ:
+            </p>
+            <iframe
+              title="Xem trước bản đồ"
+              src={mapSrc}
+              className="mt-2 h-56 w-full rounded-xl border border-black/10"
+              loading="lazy"
             />
           </div>
           <div>
@@ -322,6 +397,9 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               onChange={(e) => setField("googleAnalytics", e.target.value)}
               placeholder="G-XXXXXXXX"
             />
+            <p className="mt-1 text-xs font-semibold text-ink/45">
+              Nhập mã đo lường (G-XXXXXXXX) hoặc dán nguyên đoạn mã gtag.
+            </p>
           </div>
           <div>
             <Label>Google Webmaster Tool:</Label>
@@ -330,6 +408,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               rows={2}
               value={values.googleWebmaster}
               onChange={(e) => setField("googleWebmaster", e.target.value)}
+              placeholder='<meta name="google-site-verification" content="..." /> hoặc chỉ mã xác minh'
             />
           </div>
           <div>
@@ -340,6 +419,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               value={values.headJs}
               onChange={(e) => setField("headJs", e.target.value)}
               className="font-mono text-xs"
+              placeholder="<script>...</script> — chèn vào <head> mọi trang"
             />
           </div>
           <div>
@@ -350,14 +430,10 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
               value={values.bodyJs}
               onChange={(e) => setField("bodyJs", e.target.value)}
               className="font-mono text-xs"
+              placeholder="<script>...</script> — chèn vào cuối <body> mọi trang (chat, pixel…)"
             />
           </div>
-          <input type="hidden" name="slogan" value={values.slogan} />
-          <input
-            type="hidden"
-            name="factoryAddress"
-            value={values.factoryAddress}
-          />
+
         </div>
       </AdminCard>
 
@@ -450,6 +526,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
         </div>
       </AdminCard>
 
+      {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
       {message && (
         <p className="text-sm font-semibold text-emerald-600">{message}</p>
       )}

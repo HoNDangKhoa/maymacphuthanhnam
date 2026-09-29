@@ -129,20 +129,24 @@ export function ContactInfoCards({
   email,
   headOffice,
   factoryAddress,
+  phone,
+  workingHours,
 }: {
   hotline?: string;
   email?: string;
   headOffice?: string;
   factoryAddress?: string;
+  phone?: string;
+  workingHours?: string;
 }) {
   const cards = [
-    { label: "Hotline kinh doanh", value: hotline || site.hotline },
-    { label: "Hotline kỹ thuật", value: "0909 111 222" },
-    { label: "Email nhận mẫu", value: email || "mau@phuthanhnam.vn" },
-    { label: "Địa chỉ tiếp khách", value: headOffice || site.headOffice },
+    { label: "Hotline", value: hotline || site.hotline },
+    { label: "Điện thoại", value: phone },
+    { label: "Email", value: email || site.email },
+    { label: "Văn phòng", value: headOffice || site.headOffice },
     { label: "Nhà xưởng", value: factoryAddress || site.factoryAddress },
-    { label: "Giờ làm việc", value: "T2–T7 · 08:00–17:00" },
-  ];
+    { label: "Giờ làm việc", value: workingHours },
+  ].filter((card) => card.value);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">

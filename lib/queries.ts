@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { resolveMapEmbed } from "@/lib/site-settings";
 import { CacheKeys, cacheRemember } from "@/lib/cache";
 import {
   galleryItems as fallbackGallery,
@@ -263,11 +264,14 @@ export async function getSiteSettings() {
         headOffice: s.headOffice || fallbackSite.headOffice,
         factoryAddress: s.factoryAddress || fallbackSite.factoryAddress,
         website: s.website || "",
-        mapsEmbedUrl:
-          s.mapsEmbedUrl ||
-          "https://maps.google.com/maps?q=Binh%20Duong%20Industrial%20Park&t=&z=13&ie=UTF8&iwloc=&output=embed",
+        mapsEmbedUrl: resolveMapEmbed(s.mapsEmbedUrl, s.mapsCoords),
         metaTitle: s.metaTitle || "",
         metaDescription: s.metaDescription || "",
+        seoKeywords: s.seoKeywords || "",
+        googleAnalytics: s.googleAnalytics || "",
+        googleWebmaster: s.googleWebmaster || "",
+        headJs: s.headJs || "",
+        bodyJs: s.bodyJs || "",
         logoUrl: banner.logo.visible ? banner.logo.url : "",
         faviconUrl: banner.favicon.visible ? banner.favicon.url : "",
         heroVideoUrl: banner.video.visible ? banner.video.url.trim() : "",
@@ -294,10 +298,14 @@ export async function getSiteSettings() {
     phone: "",
     workingHours: "",
     website: "",
-    mapsEmbedUrl:
-      "https://maps.google.com/maps?q=Binh%20Duong%20Industrial%20Park&t=&z=13&ie=UTF8&iwloc=&output=embed",
+    mapsEmbedUrl: resolveMapEmbed(),
     metaTitle: "",
     metaDescription: "",
+    seoKeywords: "",
+    googleAnalytics: "",
+    googleWebmaster: "",
+    headJs: "",
+    bodyJs: "",
     logoUrl: "",
     faviconUrl: "",
     heroVideoUrl: "",

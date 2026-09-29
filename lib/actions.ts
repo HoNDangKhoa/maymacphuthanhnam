@@ -269,45 +269,48 @@ export async function deleteInquiry(id: string) {
 
 export async function saveSiteSettings(formData: FormData) {
   await requireAdmin();
+  const text = (key: string) => String(formData.get(key) ?? "").trim() || null;
+  const companyName = text("companyName");
+  if (!companyName) {
+    return { ok: false as const, error: "Vui lòng nhập tiêu đề (tên công ty)." };
+  }
+  const data = {
+    companyName,
+    slogan: text("slogan"),
+    hotline: text("hotline"),
+    phone: text("phone"),
+    email: text("email"),
+    workingHours: text("workingHours"),
+    headOffice: text("headOffice"),
+    factoryAddress: text("factoryAddress"),
+    website: text("website"),
+    mapsCoords: text("mapsCoords"),
+    mapsEmbedUrl: text("mapsEmbedUrl"),
+    googleAnalytics: text("googleAnalytics"),
+    googleWebmaster: text("googleWebmaster"),
+    headJs: text("headJs"),
+    bodyJs: text("bodyJs"),
+    metaTitle: text("metaTitle"),
+    metaDescription: text("metaDescription"),
+    seoKeywords: text("seoKeywords"),
+    primaryKeyword: text("primaryKeyword"),
+    mailerHost: text("mailerHost"),
+    mailerPort: text("mailerPort"),
+    mailerSecure: text("mailerSecure"),
+    mailerEmail: text("mailerEmail"),
+    mailerPassword: text("mailerPassword"),
+    socialLinks: JSON.stringify({
+      facebook: text("fanpage") ?? "",
+      fanpage: text("fanpage") ?? "",
+      linkedin: text("linkedin") ?? "",
+      zalo: text("zalo") ?? "",
+      oaidZalo: text("oaidZalo") ?? "",
+    }),
+  };
   await prisma.siteSetting.upsert({
     where: { id: "site_config" },
-    update: {
-      companyName: String(formData.get("companyName") || ""),
-      slogan: String(formData.get("slogan") || "") || null,
-      hotline: String(formData.get("hotline") || "") || null,
-      phone: String(formData.get("phone") || "") || null,
-      email: String(formData.get("email") || "") || null,
-      workingHours: String(formData.get("workingHours") || "") || null,
-      headOffice: String(formData.get("headOffice") || "") || null,
-      factoryAddress: String(formData.get("factoryAddress") || "") || null,
-      website: String(formData.get("website") || "") || null,
-      mapsCoords: String(formData.get("mapsCoords") || "") || null,
-      mapsEmbedUrl: String(formData.get("mapsEmbedUrl") || "") || null,
-      googleAnalytics: String(formData.get("googleAnalytics") || "") || null,
-      googleWebmaster: String(formData.get("googleWebmaster") || "") || null,
-      headJs: String(formData.get("headJs") || "") || null,
-      bodyJs: String(formData.get("bodyJs") || "") || null,
-      metaTitle: String(formData.get("metaTitle") || "") || null,
-      metaDescription: String(formData.get("metaDescription") || "") || null,
-      seoKeywords: String(formData.get("seoKeywords") || "") || null,
-      primaryKeyword: String(formData.get("primaryKeyword") || "") || null,
-      mailerHost: String(formData.get("mailerHost") || "") || null,
-      mailerPort: String(formData.get("mailerPort") || "") || null,
-      mailerSecure: String(formData.get("mailerSecure") || "") || null,
-      mailerEmail: String(formData.get("mailerEmail") || "") || null,
-      mailerPassword: String(formData.get("mailerPassword") || "") || null,
-      socialLinks: JSON.stringify({
-        facebook: String(formData.get("fanpage") || ""),
-        fanpage: String(formData.get("fanpage") || ""),
-        linkedin: String(formData.get("linkedin") || ""),
-        zalo: String(formData.get("zalo") || ""),
-        oaidZalo: String(formData.get("oaidZalo") || ""),
-      }),
-    },
-    create: {
-      id: "site_config",
-      companyName: String(formData.get("companyName") || "Phú Thành Nam"),
-    },
+    update: data,
+    create: { id: "site_config", ...data },
   });
   await revalidatePublic();
   revalidatePath("/admin/settings");
@@ -316,6 +319,7 @@ export async function saveSiteSettings(formData: FormData) {
   revalidatePath("/admin/static/about");
   revalidatePath("/admin/static/footer");
   revalidatePath("/admin/home/hero");
+  return { ok: true as const };
 }
 
 export async function togglePostPublished(id: string, published: boolean) {
@@ -639,4 +643,18 @@ export async function savePageSeo(
     ...data,
     pageSeo: { ...data.pageSeo, [key]: seo },
   }));
+}
+
+export async function sendTestMail() {
+  await requireAdmin();
+  try {
+    const { sendTestEmail } = await import("@/lib/mailer");
+    const to = await sendTestEmail();
+    return { ok: true as const, to };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : "Gửi email thất bại",
+    };
+  }
 }

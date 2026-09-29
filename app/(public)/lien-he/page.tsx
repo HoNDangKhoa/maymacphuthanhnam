@@ -4,6 +4,7 @@ import {
   ContactInfoCards,
 } from "@/components/contact/ContactForm";
 import { getSiteSettings } from "@/lib/queries";
+import { resolveMapEmbed } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
   title: "Liên hệ",
@@ -31,7 +32,7 @@ export default async function ContactPage() {
         <div className="mt-12 overflow-hidden rounded-2xl border border-[var(--line)]">
           <iframe
             title="Bản đồ Phú Thành Nam"
-            src={settings.mapsEmbedUrl}
+            src={resolveMapEmbed(settings.mapsEmbedUrl)}
             className="h-72 w-full grayscale md:h-96"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
@@ -44,6 +45,8 @@ export default async function ContactPage() {
             email={settings.email}
             headOffice={settings.headOffice}
             factoryAddress={settings.factoryAddress}
+            phone={settings.phone}
+            workingHours={settings.workingHours}
           />
         </div>
 

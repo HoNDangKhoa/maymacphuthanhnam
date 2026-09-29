@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/common/Logo";
 import { getSiteSettings } from "@/lib/queries";
+import { zaloHref } from "@/lib/site-settings";
 
 const companyLinks = [
   { href: "/gioi-thieu", label: "Giới thiệu" },
@@ -85,10 +86,22 @@ export async function Footer() {
             Liên hệ
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-paper/70">
-            <li>Hotline: {settings.hotline}</li>
-            <li>Email: {settings.email}</li>
+            <li>
+              Hotline:{" "}
+              <a href={`tel:${settings.hotline.replace(/[^\d+]/g, "")}`} className="hover:text-paper">
+                {settings.hotline}
+              </a>
+            </li>
+            {settings.phone ? <li>Điện thoại: {settings.phone}</li> : null}
+            <li>
+              Email:{" "}
+              <a href={`mailto:${settings.email}`} className="hover:text-paper">
+                {settings.email}
+              </a>
+            </li>
             <li>VP: {settings.headOffice}</li>
             <li>Xưởng: {settings.factoryAddress}</li>
+            {settings.workingHours ? <li>Giờ làm việc: {settings.workingHours}</li> : null}
           </ul>
         </div>
       </div>
@@ -116,10 +129,10 @@ export async function Footer() {
             {(settings.socialFooter?.length
               ? settings.socialFooter
               : [
-                  { id: "fb", title: "Facebook", link: settings.social?.facebook || "#" },
-                  { id: "li", title: "LinkedIn", link: settings.social?.linkedin || "#" },
-                  { id: "zl", title: "Zalo", link: settings.social?.zalo || "#" },
-                ]
+                  { id: "fb", title: "Facebook", link: settings.social?.facebook || "" },
+                  { id: "li", title: "LinkedIn", link: settings.social?.linkedin || "" },
+                  { id: "zl", title: "Zalo", link: zaloHref(settings.social?.zalo) },
+                ].filter((item) => item.link)
             ).map((item) => (
               <a
                 key={item.id}

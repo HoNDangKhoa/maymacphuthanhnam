@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { sendInquiryEmail } from "@/lib/mailer";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { contactSchema } from "@/lib/validations";
@@ -73,6 +74,12 @@ export async function POST(request: Request) {
         status: "NEW",
       },
     });
+
+    after(() =>
+      sendInquiryEmail(inquiry).catch((mailError) =>
+        console.error("[contact] notification email failed", mailError),
+      ),
+    );
 
     return NextResponse.json({
       ok: true,
