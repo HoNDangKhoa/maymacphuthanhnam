@@ -3,6 +3,7 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
+import { importRemoteImages, isExternalImage, normalizeImages } from "@/lib/html-images";
 import { uploadAsset } from "@/lib/upload-client";
 
 const uploadImage = (file: File) => uploadAsset(file);
@@ -24,10 +25,60 @@ export function TipTapEditor({
   const [mounted, setMounted] = useState(false);
   const [sourceMode, setSourceMode] = useState(false);
   const [source, setSource] = useState("");
+  const [imageStatus, setImageStatus] = useState("");
+  const onChangeRef = useRef(onChange);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  const importImagesRef = useRef(async (editor: TinyMCEEditor) => {
+    const body = editor.getBody();
+    if (!body) return;
+    const setSrc = (img: HTMLImageElement, src: string) =>
+      editor.dom.setAttribs(img, { src, "data-mce-src": src });
+    normalizeImages(body.querySelectorAll("img"), setSrc);
+    const images = [...body.querySelectorAll("img")];
+    const external = [
+      ...new Set(
+        images.map((img) => img.getAttribute("src") || "").filter(isExternalImage),
+      ),
+    ];
+    if (external.length) {
+      setImageStatus(`Đang tải ${external.length} ảnh về máy chủ…`);
+      let results: Record<string, string | null> = {};
+      try {
+        results = await importRemoteImages(external);
+      } catch {
+        results = {};
+      }
+      let failed = 0;
+      for (const img of body.querySelectorAll("img")) {
+        const src = img.getAttribute("src") || "";
+        if (!external.includes(src)) continue;
+        const next = results[src];
+        if (next) {
+          setSrc(img, next);
+          img.removeAttribute("referrerpolicy");
+        } else {
+          failed += 1;
+          editor.dom.setAttrib(img, "referrerpolicy", "no-referrer");
+        }
+      }
+      const ok = external.length - failed;
+      setImageStatus(
+        failed
+          ? `Đã tải ${ok}/${external.length} ảnh về máy chủ. ${failed} ảnh không tải được — giữ link gốc, nên tải ảnh lên bằng nút chèn ảnh.`
+          : `Đã tải ${ok} ảnh về máy chủ.`,
+      );
+    }
+    editor.undoManager.add();
+    onChangeRef.current(editor.getContent());
+  });
 
   const init = useMemo(
     () => ({
@@ -74,7 +125,7 @@ export function TipTapEditor({
       ],
       toolbar_mode: "wrap" as const,
       toolbar: [
-        "htmlsource | newdocument preview print | cut copy paste pastetext | undo redo | searchreplace selectall | bold italic underline strikethrough subscript superscript removeformat",
+        "htmlsource importimages | newdocument preview print | cut copy paste pastetext | undo redo | searchreplace selectall | bold italic underline strikethrough subscript superscript removeformat",
         "blocks | bullist numlist outdent indent | blockquote | alignleft aligncenter alignright alignjustify | ltr rtl | link unlink anchor | image media table hr emoticons charmap pagebreak",
         "styles fontfamily fontsize lineheight | forecolor backcolor | fullscreen visualblocks help",
       ].join(" | "),
@@ -154,6 +205,22 @@ export function TipTapEditor({
             setSourceMode(true);
           },
         });
+        editor.ui.registry.addButton("importimages", {
+          text: "Tải ảnh về",
+          icon: "image",
+          tooltip: "Tải các ảnh đang dùng link website khác về máy chủ",
+          onAction: () => {
+            void importImagesRef.current(editor);
+          },
+        });
+        editor.on("PastePostProcess", (e: { node: HTMLElement }) => {
+          normalizeImages(e.node.querySelectorAll("img"), (img, src) =>
+            img.setAttribute("src", src),
+          );
+          if (e.node.querySelector("img")) {
+            setTimeout(() => void importImagesRef.current(editor), 50);
+          }
+        });
       },
     }),
     [height],
@@ -179,9 +246,16 @@ export function TipTapEditor({
               type="button"
               className="rounded-md bg-[#f59e0b] px-3 py-1 text-xs font-semibold text-white hover:bg-[#d97706]"
               onClick={() => {
-                editorRef.current?.setContent(source);
-                onChange(editorRef.current?.getContent() ?? source);
+                const editor = editorRef.current;
+                const html = normalizeHtmlImages(source);
                 setSourceMode(false);
+                if (!editor) {
+                  onChange(html);
+                  return;
+                }
+                editor.setContent(html);
+                onChange(editor.getContent());
+                void importImagesRef.current(editor);
               }}
             >
               Quay lại trình soạn thảo
@@ -195,9 +269,21 @@ export function TipTapEditor({
             value={source}
             onChange={(e) => {
               setSource(e.target.value);
-              onChange(e.target.value);
+              onChange(normalizeHtmlImages(e.target.value));
             }}
           />
+        </div>
+      )}
+      {imageStatus && (
+        <div className="flex items-start justify-between gap-3 px-2 py-1.5 text-xs font-semibold text-ink/65">
+          <span>{imageStatus}</span>
+          <button
+            type="button"
+            className="shrink-0 text-ink/40 hover:text-ink"
+            onClick={() => setImageStatus("")}
+          >
+            Đóng
+          </button>
         </div>
       )}
       <div className={sourceMode ? "hidden" : undefined}>
@@ -212,6 +298,16 @@ export function TipTapEditor({
       </div>
     </div>
   );
+}
+
+function normalizeHtmlImages(html: string): string {
+  if (!/<img\b/i.test(html)) return html;
+  const doc = new DOMParser().parseFromString(`<body>${html}</body>`, "text/html");
+  const images = doc.body.querySelectorAll("img");
+  const before = doc.body.innerHTML;
+  normalizeImages(images, (img, src) => img.setAttribute("src", src));
+  const after = doc.body.innerHTML;
+  return after === before ? html : after;
 }
 
 const REAL_TAG = /<(?!\/?(p|br)\b)[a-z][^>]*>/i;
