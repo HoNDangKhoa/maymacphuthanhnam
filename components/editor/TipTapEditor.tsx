@@ -22,6 +22,8 @@ export function TipTapEditor({
 }) {
   const editorRef = useRef<TinyMCEEditor | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [sourceMode, setSourceMode] = useState(false);
+  const [source, setSource] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +40,14 @@ export function TipTapEditor({
       skin: "oxide",
       content_css: "default",
       entity_encoding: "raw" as const,
+      valid_elements: "*[*]",
+      extended_valid_elements: "*[*]",
+      valid_children: "+body[style|link],+div[style]",
+      verify_html: false,
+      convert_urls: false,
+      paste_preprocess: (_editor: TinyMCEEditor, args: { content: string }) => {
+        args.content = decodePastedHtml(args.content);
+      },
       plugins: [
         "advlist",
         "anchor",
@@ -64,7 +74,7 @@ export function TipTapEditor({
       ],
       toolbar_mode: "wrap" as const,
       toolbar: [
-        "code | newdocument preview print | cut copy paste pastetext | undo redo | searchreplace selectall | bold italic underline strikethrough subscript superscript removeformat",
+        "htmlsource | newdocument preview print | cut copy paste pastetext | undo redo | searchreplace selectall | bold italic underline strikethrough subscript superscript removeformat",
         "blocks | bullist numlist outdent indent | blockquote | alignleft aligncenter alignright alignjustify | ltr rtl | link unlink anchor | image media table hr emoticons charmap pagebreak",
         "styles fontfamily fontsize lineheight | forecolor backcolor | fullscreen visualblocks help",
       ].join(" | "),
@@ -135,6 +145,15 @@ export function TipTapEditor({
         "body{font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 8px}",
       setup: (editor: TinyMCEEditor) => {
         editorRef.current = editor;
+        editor.ui.registry.addButton("htmlsource", {
+          text: "Mã HTML",
+          icon: "sourcecode",
+          tooltip: "Nhập / sửa bằng thẻ HTML",
+          onAction: () => {
+            setSource(editor.getContent());
+            setSourceMode(true);
+          },
+        });
       },
     }),
     [height],
@@ -150,6 +169,38 @@ export function TipTapEditor({
 
   return (
     <div className="ck-like-editor overflow-hidden rounded-xl border border-black/15 bg-[#f1ebe4] p-1 [&_.tox-tinymce]:!border-0 [&_.tox-editor-header]:!bg-[#f8f4ee] [&_.tox-statusbar]:!bg-[#f8f4ee]">
+      {sourceMode && (
+        <div className="overflow-hidden rounded-lg bg-white">
+          <div className="flex items-center justify-between gap-3 border-b border-black/10 bg-[#f8f4ee] px-3 py-2">
+            <span className="text-xs font-semibold text-ink/60">
+              Chế độ mã HTML — nhập trực tiếp thẻ HTML
+            </span>
+            <button
+              type="button"
+              className="rounded-md bg-[#f59e0b] px-3 py-1 text-xs font-semibold text-white hover:bg-[#d97706]"
+              onClick={() => {
+                editorRef.current?.setContent(source);
+                onChange(editorRef.current?.getContent() ?? source);
+                setSourceMode(false);
+              }}
+            >
+              Quay lại trình soạn thảo
+            </button>
+          </div>
+          <textarea
+            aria-label="Mã HTML"
+            spellCheck={false}
+            className="block w-full resize-y bg-white p-3 font-mono text-[13px] leading-relaxed text-ink outline-none"
+            style={{ height: height - 44 }}
+            value={source}
+            onChange={(e) => {
+              setSource(e.target.value);
+              onChange(e.target.value);
+            }}
+          />
+        </div>
+      )}
+      <div className={sourceMode ? "hidden" : undefined}>
       <Editor
         tinymceScriptSrc="/tinymce/tinymce.min.js"
         licenseKey="gpl"
@@ -158,6 +209,22 @@ export function TipTapEditor({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         init={init as any}
       />
+      </div>
     </div>
   );
+}
+
+const REAL_TAG = /<(?!\/?(p|br)\b)[a-z][^>]*>/i;
+const ESCAPED_TAG = /&lt;\/?[a-z][\s\S]*?&gt;/i;
+
+/** Mã HTML dán dưới dạng văn bản thuần (bị escape thành &lt;tag&gt;) → chèn thành HTML thật. */
+function decodePastedHtml(content: string): string {
+  if (REAL_TAG.test(content) || !ESCAPED_TAG.test(content)) return content;
+  const text = content
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>\s*<p[^>]*>/gi, "\n")
+    .replace(/<\/?p[^>]*>/gi, "");
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = text;
+  return textarea.value;
 }

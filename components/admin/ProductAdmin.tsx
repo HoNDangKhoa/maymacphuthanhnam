@@ -641,6 +641,10 @@ export function ProductForm({
 }
 
 type CategoryRow = ProductCategoryInfo & { key: string; count: number };
+type EditableCategoryRow = CategoryRow & { uid: string; originalKey?: string };
+
+const normalizeCategoryKey = (value: string) =>
+  value.toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_-]/g, "");
 
 export function ProductCategoriesEditor({
   initial,
@@ -648,13 +652,25 @@ export function ProductCategoriesEditor({
   initial: CategoryRow[];
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
+  const toRows = (list: CategoryRow[]): EditableCategoryRow[] =>
+    list.map((r) => ({ ...r, originalKey: r.key, uid: r.key }));
+  const [prevInitial, setPrevInitial] = useState(initial);
+  const [rows, setRows] = useState(() => toRows(initial));
+  const [removed, setRemoved] = useState<{ key: string; name: string; count: number; moveTo: string }[]>([]);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [moveTo, setMoveTo] = useState("");
   const [draft, setDraft] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
+    setRows(toRows(initial));
+    setRemoved([]);
+    setConfirming(null);
+  }
   const addDraft = () => {
-    const key = draft.trim();
+    const key = normalizeCategoryKey(draft);
     if (!key) return;
     if (rows.some((r) => r.key === key)) {
       setError(`Mã danh mục ${key} đã tồn tại.`);
@@ -663,11 +679,24 @@ export function ProductCategoriesEditor({
     setError("");
     setRows((r) => [
       ...r,
-      { key, name: "", description: "", image: "", count: 0 },
+      { key, uid: `new_${Date.now()}`, name: "", description: "", image: "", count: 0 },
     ]);
     setDraft("");
   };
-  const update = (i: number, patch: Partial<CategoryRow>) =>
+  const removeRow = (row: EditableCategoryRow, target: string) => {
+    setRows((r) => r.filter((x) => x.uid !== row.uid));
+    setRemoved((list) => {
+      const next = list.map((r) =>
+        r.moveTo === row.uid ? { ...r, moveTo: target } : r,
+      );
+      return row.originalKey && row.count > 0
+        ? [...next, { key: row.originalKey, name: row.name || row.key, count: row.count, moveTo: target }]
+        : next;
+    });
+    setConfirming(null);
+    setMessage("");
+  };
+  const update = (i: number, patch: Partial<EditableCategoryRow>) =>
     setRows((r) => r.map((row, j) => (j === i ? { ...row, ...patch } : row)));
 
   return (
@@ -682,15 +711,19 @@ export function ProductCategoriesEditor({
           startTransition(async () => {
             setMessage("");
             setError("");
-            const res = await saveProductCategories(
-              rows.map((r) => r.key),
-              Object.fromEntries(
-                rows.map((r) => [
-                  r.key,
-                  { name: r.name, description: r.description, image: r.image },
-                ]),
-              ),
-            );
+            const res = await saveProductCategories({
+              rows: rows.map((r) => ({
+                key: r.key,
+                originalKey: r.originalKey,
+                name: r.name,
+                description: r.description,
+                image: r.image,
+              })),
+              removed: removed.map(({ key, moveTo }) => ({
+                key,
+                moveTo: rows.find((x) => x.uid === moveTo)?.key ?? "",
+              })),
+            });
             if (!res.ok) {
               setError(res.error);
               return;
@@ -718,15 +751,40 @@ export function ProductCategoriesEditor({
           )}
         </div>
 
+        {removed.length > 0 && (
+          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <p className="font-semibold">Chờ lưu — sẽ xóa danh mục:</p>
+            <ul className="mt-1 list-disc pl-5">
+              {removed.map((r) => (
+                <li key={r.key}>
+                  {r.name} ({r.key}): chuyển {r.count} sản phẩm sang{" "}
+                  <strong>
+                    {(() => {
+                      const target = rows.find((x) => x.uid === r.moveTo);
+                      return target ? target.name || target.key : "(chưa chọn — danh mục đích đã bị xóa)";
+                    })()}
+                  </strong>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1 text-xs">Nhấn &quot;Lưu thay đổi&quot; để áp dụng, hoặc tải lại trang để hủy.</p>
+          </div>
+        )}
+
         <div className="space-y-4">
           {rows.map((row, i) => (
-            <AdminCard key={row.key} title={`${row.name || row.key} (${row.count} sản phẩm)`}>
+            <AdminCard key={row.uid} title={`${row.name || row.key} (${row.count} sản phẩm)`}>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-3 md:col-span-2">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <Label>Mã danh mục</Label>
-                      <Input value={row.key} disabled />
+                      <Input
+                        value={row.key}
+                        onChange={(e) =>
+                          update(i, { key: normalizeCategoryKey(e.target.value) })
+                        }
+                      />
                     </div>
                     <div>
                       <Label>Tên hiển thị</Label>
@@ -788,20 +846,57 @@ export function ProductCategoriesEditor({
                 </IconButton>
                 <button
                   type="button"
-                  disabled={row.count > 0}
-                  title={
-                    row.count > 0
-                      ? "Chuyển hoặc xóa sản phẩm trong danh mục trước"
-                      : undefined
-                  }
+                  disabled={rows.length <= 1}
+                  title={rows.length <= 1 ? "Cần ít nhất một danh mục" : undefined}
                   className="ml-auto text-xs font-semibold text-red-600 disabled:cursor-not-allowed disabled:text-ink/30"
-                  onClick={() => setRows((r) => r.filter((_, j) => j !== i))}
+                  onClick={() => {
+                    if (row.count > 0 && row.originalKey) {
+                      setConfirming(row.uid);
+                      setMoveTo(rows.find((x) => x.uid !== row.uid)?.uid ?? "");
+                      return;
+                    }
+                    if (window.confirm(`Xóa danh mục ${row.name || row.key}?`)) {
+                      removeRow(row, "");
+                    }
+                  }}
                 >
-                  {row.count > 0
-                    ? "Không thể xóa (còn sản phẩm)"
-                    : "Xóa danh mục"}
+                  Xóa danh mục
                 </button>
               </div>
+              {confirming === row.uid && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm">
+                  <span className="font-semibold text-red-700">
+                    Danh mục có {row.count} sản phẩm — chuyển sang:
+                  </span>
+                  <select
+                    className="rounded-lg border border-black/10 bg-white px-2 py-1 text-sm"
+                    value={moveTo}
+                    onChange={(e) => setMoveTo(e.target.value)}
+                  >
+                    {rows
+                      .filter((x) => x.uid !== row.uid)
+                      .map((x) => (
+                        <option key={x.uid} value={x.uid}>
+                          {x.name || x.key}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white"
+                    onClick={() => moveTo && removeRow(row, moveTo)}
+                  >
+                    Xác nhận xóa
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-ink/60"
+                    onClick={() => setConfirming(null)}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              )}
             </AdminCard>
           ))}
         </div>
@@ -812,7 +907,7 @@ export function ProductCategoriesEditor({
               className="max-w-xs"
               placeholder="Mã danh mục, ví dụ: SHIRT"
               value={draft}
-              onChange={(e) => setDraft(e.target.value.toUpperCase())}
+              onChange={(e) => setDraft(normalizeCategoryKey(e.target.value))}
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 e.preventDefault();

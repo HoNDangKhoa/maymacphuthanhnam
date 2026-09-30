@@ -686,27 +686,66 @@ export async function setProductVisible(id: string, isVisible: boolean) {
   revalidatePath("/admin/products");
 }
 
-export async function saveProductCategories(
-  categories: string[],
-  categoryInfo: Record<string, import("@/lib/home-content").ProductCategoryInfo>,
-) {
-  const keys = [
-    ...new Set(categories.map((c) => c.trim().toUpperCase()).filter(Boolean)),
-  ];
-  if (!keys.length) {
+export async function saveProductCategories(input: {
+  rows: (import("@/lib/home-content").ProductCategoryInfo & {
+    key: string;
+    originalKey?: string;
+  })[];
+  removed: { key: string; moveTo: string }[];
+}) {
+  const normalize = (k: string) =>
+    k.trim().toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_-]/g, "");
+  const rows = input.rows.map((r) => ({ ...r, key: normalize(r.key) }));
+  if (!rows.length) {
     return { ok: false as const, error: "Cần ít nhất một danh mục." };
   }
-  await saveBannerData((data) => ({
-    ...data,
-    homeLookbook: {
-      ...data.homeLookbook,
-      categories: keys,
-      categoryInfo: Object.fromEntries(
-        keys.map((k) => [k, categoryInfo[k] ?? { name: "", description: "", image: "" }]),
-      ),
-    },
-  }));
+  if (rows.some((r) => !r.key)) {
+    return { ok: false as const, error: "Mã danh mục không được để trống." };
+  }
+  const keys = rows.map((r) => r.key);
+  const dup = keys.find((k, i) => keys.indexOf(k) !== i);
+  if (dup) {
+    return { ok: false as const, error: `Mã danh mục ${dup} bị trùng.` };
+  }
+
+  const remap = new Map<string, string>();
+  for (const r of rows) {
+    if (r.originalKey && r.originalKey !== r.key) remap.set(r.originalKey, r.key);
+  }
+  for (const r of input.removed) {
+    const target = normalize(r.moveTo);
+    if (!keys.includes(target)) {
+      return {
+        ok: false as const,
+        error: `Chọn danh mục để chuyển sản phẩm của ${r.key} sang.`,
+      };
+    }
+    remap.set(r.key, target);
+  }
+
+  try {
+    await saveBannerData((data) => ({
+      ...data,
+      homeLookbook: {
+        ...data.homeLookbook,
+        categories: keys,
+        categoryInfo: Object.fromEntries(
+          rows.map((r) => [
+            r.key,
+            { name: r.name ?? "", description: r.description ?? "", image: r.image ?? "" },
+          ]),
+        ),
+        products: data.homeLookbook.products.map((p) => {
+          const next = remap.get(p.category) ?? p.category;
+          return next === p.category ? p : { ...p, category: next };
+        }),
+      },
+    }));
+  } catch {
+    return { ok: false as const, error: "Không lưu được danh mục. Vui lòng thử lại." };
+  }
   revalidatePath("/admin/product-categories");
+  revalidatePath("/admin/products");
   return { ok: true as const };
 }
 
