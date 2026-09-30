@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { HtmlContent } from "@/components/common/HtmlContent";
 import { PillLink } from "@/components/common/PillLink";
 import { notFound } from "next/navigation";
 import { getPostBySlugFromDb, getPublishedPosts } from "@/lib/queries";
@@ -51,10 +52,7 @@ export default async function NewsDetailPage({ params }: Props) {
               sizes="800px"
             />
           </div>
-          <div
-            className="prose-ptn mt-10"
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-          />
+          <HtmlContent className="prose-ptn mt-10" html={post.contentHtml} />
           <div className="mt-10 flex flex-wrap gap-3 text-sm">
             <span className="text-ink/50">Chia sẻ:</span>
             <button type="button" className="font-medium text-ink">

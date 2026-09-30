@@ -1,12 +1,13 @@
 "use client";
 
 import { Editor } from "@tinymce/tinymce-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { importRemoteImages, isExternalImage, normalizeImages } from "@/lib/html-images";
 import { uploadAsset } from "@/lib/upload-client";
 
 const uploadImage = (file: File) => uploadAsset(file);
+const subscribeNoop = () => () => {};
 
 /**
  * Rich text editor đầy đủ toolbar (kiểu CKEditor).
@@ -22,15 +23,15 @@ export function TipTapEditor({
   height?: number;
 }) {
   const editorRef = useRef<TinyMCEEditor | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
   const [sourceMode, setSourceMode] = useState(false);
   const [source, setSource] = useState("");
   const [imageStatus, setImageStatus] = useState("");
   const onChangeRef = useRef(onChange);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -97,7 +98,7 @@ export function TipTapEditor({
       verify_html: false,
       convert_urls: false,
       paste_preprocess: (_editor: TinyMCEEditor, args: { content: string }) => {
-        args.content = decodePastedHtml(args.content);
+        args.content = extractDocumentHtml(decodePastedHtml(args.content));
       },
       plugins: [
         "advlist",
@@ -300,7 +301,26 @@ export function TipTapEditor({
   );
 }
 
-function normalizeHtmlImages(html: string): string {
+/**
+ * Dán cả trang HTML (<html><head><style>…</head><body>…) → giữ lại CSS/font/script
+ * trong <head> và nội dung <body>, vì trình soạn thảo chỉ giữ phần body.
+ */
+function extractDocumentHtml(html: string): string {
+  if (!/<!doctype|<html[\s>]|<head[\s>]|<body[\s>]/i.test(html)) return html;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const assets = [
+    ...doc.head.querySelectorAll('style, link[rel~="stylesheet"], script'),
+  ]
+    .map((el) => el.outerHTML)
+    .join("\n");
+  const bodyClass = doc.body.getAttribute("class");
+  const body = doc.body.innerHTML.trim();
+  const content = bodyClass ? `<div class="${bodyClass}">\n${body}\n</div>` : body;
+  return [assets, content].filter(Boolean).join("\n");
+}
+
+function normalizeHtmlImages(input: string): string {
+  const html = extractDocumentHtml(input);
   if (!/<img\b/i.test(html)) return html;
   const doc = new DOMParser().parseFromString(`<body>${html}</body>`, "text/html");
   const images = doc.body.querySelectorAll("img");

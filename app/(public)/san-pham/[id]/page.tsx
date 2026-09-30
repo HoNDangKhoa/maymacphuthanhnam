@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { HtmlContent } from "@/components/common/HtmlContent";
 import { PillLink } from "@/components/common/PillLink";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductGallery } from "@/components/products/ProductGallery";
@@ -114,9 +115,9 @@ export default async function ProductDetailPage({ params }: Props) {
           <h2 className="mt-4 font-display text-3xl leading-tight font-medium tracking-tight text-ink md:text-4xl lg:text-[2.75rem]">
             {detail.detailTitle}
           </h2>
-          <div
+          <HtmlContent
             className="prose-ptn prose-ptn-center mt-8 text-base md:text-lg [&_strong]:text-ink"
-            dangerouslySetInnerHTML={{ __html: toRichHtml(detail.description) }}
+            html={toRichHtml(detail.description)}
           />
           <PillLink href="/lien-he" variant="dark" className="mt-10">
             Liên hệ báo giá

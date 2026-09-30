@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { HtmlContent } from "@/components/common/HtmlContent";
 import { PillLink } from "@/components/common/PillLink";
 import { notFound } from "next/navigation";
 import { getPostBySlugFromDb, getPublishedPosts } from "@/lib/queries";
@@ -54,10 +55,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
               sizes="800px"
             />
           </div>
-          <div
-            className="prose-ptn mt-10"
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-          />
+          <HtmlContent className="prose-ptn mt-10" html={post.contentHtml} />
         </article>
 
         <aside className="space-y-8 lg:col-span-4">

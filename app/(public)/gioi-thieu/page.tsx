@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSiteSettings } from "@/lib/queries";
-import { toRichHtml } from "@/lib/rich-text";
+import { HtmlContent } from "@/components/common/HtmlContent";
+import { isCustomLayout, toRichHtml } from "@/lib/rich-text";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,14 @@ export default async function AboutPage() {
   const settings = await getSiteSettings();
   const article = settings.aboutArticle;
   const content = toRichHtml(article.content);
+
+  if (isCustomLayout(content)) {
+    return (
+      <div className="bg-paper pt-[4.5rem] md:pt-[5.5rem]">
+        <HtmlContent html={content} className="cms-layout" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-paper pt-32 md:pt-40 pb-20 md:pb-28">
@@ -42,9 +51,10 @@ export default async function AboutPage() {
         )}
 
         {content && (
-          <article
+          <HtmlContent
+            as="article"
+            html={content}
             className="prose-ptn mt-12 max-w-none text-lg md:text-xl"
-            dangerouslySetInnerHTML={{ __html: content }}
           />
         )}
       </div>

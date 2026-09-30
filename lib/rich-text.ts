@@ -30,8 +30,14 @@ export function toRichHtml(text: string | null | undefined): string {
     .join("");
 }
 
+/** Nội dung là một bố cục tự thiết kế (có CSS riêng) thay vì bài viết thường. */
+export function isCustomLayout(html: string | null | undefined): boolean {
+  return /<style[\s>]|<link[^>]+stylesheet/i.test(html ?? "");
+}
+
 export function stripHtml(text: string | null | undefined): string {
   return (text ?? "")
+    .replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, " ")
     .replace(/<br\s*\/?>/gi, " ")
     .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
     .replace(/<[^>]+>/g, "")
