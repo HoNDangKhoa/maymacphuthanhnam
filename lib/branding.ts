@@ -1,5 +1,8 @@
 import {
+  type AboutArticle,
   type AboutSectionItem,
+  aboutArticleFromSections,
+  defaultAboutArticle,
   type HomeLookbookContent,
   type HomeSectionChrome,
   type HomeStatItem,
@@ -71,6 +74,7 @@ export type BannerData = {
   homeLookbook: HomeLookbookContent;
   homeChrome: HomeSectionChrome;
   aboutSections: AboutSectionItem[];
+  aboutArticle: AboutArticle;
 };
 
 export const PAGE_SEO_KEYS = [
@@ -142,6 +146,7 @@ export function defaultBannerData(): BannerData {
     homeLookbook: defaultHomeLookbook(),
     homeChrome: defaultHomeSectionChrome(),
     aboutSections: defaultAboutSections(),
+    aboutArticle: defaultAboutArticle(),
   };
 }
 
@@ -212,6 +217,18 @@ export function parseBannerData(raw?: string | null): BannerData {
         Array.isArray(parsed.aboutSections) && parsed.aboutSections.length
           ? parsed.aboutSections
           : base.aboutSections,
+      aboutArticle:
+        parsed.aboutArticle && typeof parsed.aboutArticle === "object"
+          ? {
+              title: parsed.aboutArticle.title ?? "",
+              content: parsed.aboutArticle.content ?? "",
+              imageUrl: parsed.aboutArticle.imageUrl ?? "",
+            }
+          : aboutArticleFromSections(
+              Array.isArray(parsed.aboutSections) && parsed.aboutSections.length
+                ? parsed.aboutSections
+                : base.aboutSections,
+            ),
     };
   } catch {
     return base;

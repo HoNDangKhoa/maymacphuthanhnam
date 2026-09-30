@@ -8,6 +8,7 @@ import {
   trustFeatures as fallbackTrust,
 } from "@/lib/data";
 import { slugify } from "@/lib/cms";
+import { toRichHtml } from "@/lib/rich-text";
 
 export { slugify };
 
@@ -214,6 +215,12 @@ export type AboutSectionItem = {
   content: string;
 };
 
+export type AboutArticle = {
+  title: string;
+  content: string;
+  imageUrl: string;
+};
+
 function uid(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -295,6 +302,25 @@ export function defaultHomeSectionChrome(): HomeSectionChrome {
 
 export function defaultAboutSections(): AboutSectionItem[] {
   return fallbackAbout.map((s) => ({ ...s }));
+}
+
+export function aboutArticleFromSections(
+  sections: AboutSectionItem[] = defaultAboutSections(),
+): AboutArticle {
+  return {
+    title: "May Mặc Phú Thành Nam",
+    imageUrl: "",
+    content: sections
+      .map(
+        (s) =>
+          `${s.title ? `<h2>${s.title}</h2>` : ""}${toRichHtml(s.content)}`,
+      )
+      .join(""),
+  };
+}
+
+export function defaultAboutArticle(): AboutArticle {
+  return aboutArticleFromSections();
 }
 
 export function newHomeStat(partial?: Partial<HomeStatItem>): HomeStatItem {

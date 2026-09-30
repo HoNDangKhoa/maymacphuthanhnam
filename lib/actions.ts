@@ -716,10 +716,25 @@ export async function saveHomeChrome(
   await saveBannerData((data) => ({ ...data, homeChrome }));
 }
 
-export async function saveAboutSections(
-  aboutSections: import("@/lib/home-content").AboutSectionItem[],
+export async function saveAboutArticle(
+  article: import("@/lib/home-content").AboutArticle,
 ) {
-  await saveBannerData((data) => ({ ...data, aboutSections }));
+  try {
+    await saveBannerData((data) => ({
+      ...data,
+      aboutArticle: {
+        title: String(article.title ?? "").trim(),
+        content: String(article.content ?? ""),
+        imageUrl: String(article.imageUrl ?? "").trim(),
+      },
+    }));
+    return { ok: true as const };
+  } catch {
+    return {
+      ok: false as const,
+      error: "Không lưu được bài giới thiệu. Vui lòng thử lại.",
+    };
+  }
 }
 
 export async function saveSlideshowItems(

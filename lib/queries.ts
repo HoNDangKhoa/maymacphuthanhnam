@@ -241,6 +241,10 @@ export async function getSiteSettings() {
       Array.isArray(row.aboutSections) && row.aboutSections.length
         ? row.aboutSections
         : defaults.aboutSections,
+    aboutArticle:
+      row.aboutArticle && typeof row.aboutArticle === "object"
+        ? (row.aboutArticle as typeof defaults.aboutArticle)
+        : defaults.aboutArticle,
   });
 
   try {
@@ -286,6 +290,7 @@ export async function getSiteSettings() {
         homeLookbook: banner.homeLookbook,
         homeChrome: banner.homeChrome,
         aboutSections: banner.aboutSections,
+        aboutArticle: banner.aboutArticle,
         social,
       };
     });
@@ -330,6 +335,7 @@ export async function getSiteSettings() {
     homeLookbook: defaults.homeLookbook,
     homeChrome: defaults.homeChrome,
     aboutSections: defaults.aboutSections,
+    aboutArticle: defaults.aboutArticle,
     social: {} as Record<string, string>,
   });
 }

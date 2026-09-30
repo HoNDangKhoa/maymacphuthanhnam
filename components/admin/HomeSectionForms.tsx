@@ -9,7 +9,7 @@ import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
-  saveAboutSections,
+  saveAboutArticle,
   saveHomeChrome,
   saveHomeLookbook,
   saveHomeStats,
@@ -17,7 +17,7 @@ import {
   saveHomeTrust,
 } from "@/lib/actions";
 import type {
-  AboutSectionItem,
+  AboutArticle,
   HomeLookbookContent,
   HomeSectionChrome,
   HomeStatItem,
@@ -27,8 +27,8 @@ import type {
 import { toRichHtml } from "@/lib/rich-text";
 import {
   STAT_ICON_OPTIONS,
+  defaultAboutArticle,
   defaultStatIcon,
-  newAboutSection,
   newHomeStat,
   newTestimonial,
   newTrustFeature,
@@ -697,93 +697,123 @@ export function HomeChromeEditor({
   );
 }
 
-export function AboutEditor({ initial }: { initial: AboutSectionItem[] }) {
+export function AboutEditor({ initial }: { initial: AboutArticle }) {
   const router = useRouter();
-  const [items, setItems] = useState(() =>
-    initial.map((item) => ({ ...item, content: toRichHtml(item.content) })),
-  );
+  const [article, setArticle] = useState<AboutArticle>(() => ({
+    ...initial,
+    content: toRichHtml(initial.content),
+  }));
+  const [editorKey, setEditorKey] = useState(0);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+
+  function save(next: AboutArticle, done: string) {
+    startTransition(async () => {
+      setMessage("");
+      setError("");
+      const result = await saveAboutArticle(next);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setMessage(done);
+      router.refresh();
+    });
+  }
 
   return (
     <div>
       <AdminPageHeader title="Giới thiệu" />
       <p className="mb-5 text-sm text-ink/55">
-        Các mục trang /gioi-thieu (lịch sử, tầm nhìn, giá trị…).
+        Bài viết giới thiệu hiển thị tại trang{" "}
+        <Link href="/gioi-thieu" target="_blank" className="font-semibold text-[#f59e0b]">
+          /gioi-thieu
+        </Link>
+        . Dùng định dạng Heading trong trình soạn thảo để chia đoạn (lịch sử, tầm nhìn, giá trị…).
       </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          startTransition(async () => {
-            setMessage("");
-            await saveAboutSections(items);
-            setMessage("Đã lưu giới thiệu.");
-            router.refresh();
-          });
+          save(article, "Đã lưu bài giới thiệu.");
         }}
       >
         <SaveBar pending={pending} message={message} />
-        <div className="space-y-4">
-          {items.map((item, index) => (
-            <AdminCard key={index} title={`Mục ${index + 1}`}>
-              <div className="space-y-3">
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div>
-                    <Label>ID (anchor)</Label>
-                    <Input
-                      value={item.id}
-                      onChange={(e) => {
-                        const next = [...items];
-                        next[index] = { ...item, id: e.target.value };
-                        setItems(next);
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Label>Tiêu đề</Label>
-                    <Input
-                      value={item.title}
-                      onChange={(e) => {
-                        const next = [...items];
-                        next[index] = { ...item, title: e.target.value };
-                        setItems(next);
-                      }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label>Nội dung</Label>
-                  <TipTapEditor
-                    height={320}
-                    value={item.content}
-                    onChange={(html) =>
-                      setItems((prev) => {
-                        const next = [...prev];
-                        next[index] = { ...next[index], content: html };
-                        return next;
-                      })
-                    }
-                  />
-                </div>
+        {error && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600">
+            {error}
+          </p>
+        )}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <AdminCard title="Nội dung bài viết">
+            <div className="space-y-3">
+              <div>
+                <Label>Tiêu đề</Label>
+                <Input
+                  name="aboutTitle"
+                  value={article.title}
+                  onChange={(e) => setArticle({ ...article, title: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Nội dung</Label>
+                <TipTapEditor
+                  key={editorKey}
+                  height={640}
+                  value={article.content}
+                  onChange={(html) =>
+                    setArticle((prev) => ({ ...prev, content: html }))
+                  }
+                />
+              </div>
+              <div className="flex flex-wrap gap-4 pt-1">
                 <button
                   type="button"
-                  className="text-xs font-semibold text-red-600"
-                  onClick={() => setItems(items.filter((x) => x.id !== item.id))}
+                  disabled={pending}
+                  className="text-xs font-semibold text-red-600 disabled:opacity-50"
+                  onClick={() => {
+                    if (!window.confirm("Xóa toàn bộ nội dung bài giới thiệu?")) return;
+                    const next = { ...article, content: "" };
+                    setArticle(next);
+                    setEditorKey((k) => k + 1);
+                    save(next, "Đã xóa nội dung bài giới thiệu.");
+                  }}
                 >
-                  Xóa mục
+                  Xóa nội dung
+                </button>
+                <button
+                  type="button"
+                  disabled={pending}
+                  className="text-xs font-semibold text-ink/60 hover:text-ink disabled:opacity-50"
+                  onClick={() => {
+                    if (!window.confirm("Khôi phục nội dung giới thiệu mặc định?")) return;
+                    const next = { ...defaultAboutArticle(), imageUrl: article.imageUrl };
+                    setArticle(next);
+                    setEditorKey((k) => k + 1);
+                    save(next, "Đã khôi phục nội dung mặc định.");
+                  }}
+                >
+                  Khôi phục mặc định
                 </button>
               </div>
-            </AdminCard>
-          ))}
+            </div>
+          </AdminCard>
+          <AdminCard title="Hình ảnh">
+            <ImageDropzone
+              value={article.imageUrl}
+              onChange={(url) => setArticle((prev) => ({ ...prev, imageUrl: url }))}
+            />
+            {article.imageUrl && (
+              <button
+                type="button"
+                className="mt-3 text-xs font-semibold text-red-600"
+                onClick={() => setArticle((prev) => ({ ...prev, imageUrl: "" }))}
+              >
+                Xóa hình
+              </button>
+            )}
+          </AdminCard>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-4"
-          onClick={() => setItems([...items, newAboutSection()])}
-        >
-          + Thêm mục
-        </Button>
       </form>
     </div>
   );
