@@ -775,7 +775,7 @@ export function PageArticleEditor({
             {error}
           </p>
         )}
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
           <AdminCard title="Nội dung bài viết">
             <div className="space-y-3">
               <div>

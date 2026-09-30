@@ -96,7 +96,7 @@ export function AdminCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-black/8 bg-white p-4 shadow-sm md:p-5",
+        "min-w-0 rounded-2xl border border-black/8 bg-white p-4 shadow-sm md:p-5",
         className,
       )}
     >
