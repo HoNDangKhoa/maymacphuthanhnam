@@ -21,12 +21,13 @@ export default function ChangePasswordPage() {
             e.preventDefault();
             setMessage("");
             setError("");
-            const formData = new FormData(e.currentTarget);
+            const form = e.currentTarget;
+            const formData = new FormData(form);
             startTransition(async () => {
               const res = await changePassword(formData);
               if (res.ok) {
                 setMessage("Đã cập nhật mật khẩu thành công.");
-                e.currentTarget.reset();
+                form.reset();
               } else {
                 setError(res.error);
               }

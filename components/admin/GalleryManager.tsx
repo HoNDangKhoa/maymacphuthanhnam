@@ -40,10 +40,12 @@ type Item = {
 function SortableCard({
   item,
   onToggle,
+  onEdit,
   onDelete,
 }: {
   item: Item;
   onToggle: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -84,15 +86,14 @@ function SortableCard({
       />
       <p className="mt-2 font-semibold">{item.title || "Không tiêu đề"}</p>
       <p className="text-sm text-ink/55">{item.caption}</p>
-      <Button
-        type="button"
-        size="sm"
-        variant="danger"
-        className="mt-3"
-        onClick={onDelete}
-      >
-        Xoá
-      </Button>
+      <div className="mt-3 flex gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={onEdit}>
+          Sửa
+        </Button>
+        <Button type="button" size="sm" variant="danger" onClick={onDelete}>
+          Xoá
+        </Button>
+      </div>
     </div>
   );
 }
@@ -101,6 +102,20 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Item | null>(null);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const openForm = (item: Item | null) => {
+    setEditing(item);
+    setError("");
+    setOpen(true);
+    requestAnimationFrame(() =>
+      document
+        .getElementById("gallery-form")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+  };
   const sensors = useSensors(useSensor(PointerSensor));
 
   useEffect(() => {
@@ -121,7 +136,7 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button type="button" onClick={() => setOpen(true)}>
+        <Button type="button" onClick={() => openForm(null)}>
           Thêm ảnh
         </Button>
       </div>
@@ -150,6 +165,7 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
                   await toggleGalleryActive(item.id, next);
                   router.refresh();
                 }}
+                onEdit={() => openForm(item)}
                 onDelete={async () => {
                   if (!confirm("Xoá ảnh này?")) return;
                   await deleteGalleryItem(item.id);
@@ -164,34 +180,60 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
 
       {open && (
         <form
+          key={editing?.id ?? "new"}
+          id="gallery-form"
           className="space-y-4 border border-[var(--line)] bg-paper p-5"
           onSubmit={async (e) => {
             e.preventDefault();
             const form = new FormData(e.currentTarget);
-            form.set("isActive", "true");
-            await saveGalleryItem(form);
-            setOpen(false);
-            router.refresh();
+            if (!String(form.get("imageUrl") || "").trim()) {
+              setError("Vui lòng thêm ảnh trước khi lưu.");
+              return;
+            }
+            form.set("isActive", String(editing?.isActive ?? true));
+            setSaving(true);
+            setError("");
+            try {
+              await saveGalleryItem(form);
+              setOpen(false);
+              setEditing(null);
+              router.refresh();
+            } catch {
+              setError("Không lưu được ảnh, vui lòng thử lại.");
+            } finally {
+              setSaving(false);
+            }
           }}
         >
-          <p className="font-semibold">Thêm ảnh gallery</p>
+          <p className="font-semibold">
+            {editing ? "Sửa ảnh gallery" : "Thêm ảnh gallery"}
+          </p>
+          {editing && <input type="hidden" name="id" value={editing.id} />}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Tiêu đề</Label>
-              <Input name="title" />
+              <Input name="title" defaultValue={editing?.title ?? ""} />
             </div>
             <div>
               <Label>Chú thích</Label>
-              <Input name="caption" />
+              <Input name="caption" defaultValue={editing?.caption ?? ""} />
             </div>
           </div>
-          <ImageUploadField name="imageUrl" label="Thêm ảnh" required />
+          <ImageUploadField
+            name="imageUrl"
+            label="Ảnh"
+            defaultValue={editing?.imageUrl ?? ""}
+            required
+          />
           <div>
             <Label>Alt text</Label>
-            <Input name="altText" />
+            <Input name="altText" defaultValue={editing?.altText ?? ""} />
           </div>
+          {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
           <div className="flex gap-2">
-            <Button type="submit">Lưu</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Đang lưu…" : "Lưu"}
+            </Button>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Huỷ
             </Button>

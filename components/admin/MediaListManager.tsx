@@ -99,7 +99,10 @@ export function MediaListManager({
       </div>
 
       {editing && (
-        <AdminCard title={editing.title ? "Sửa mục" : "Thêm mới"} className="mb-4">
+        <AdminCard
+          title={items.some((i) => i.id === editing.id) ? "Sửa mục" : "Thêm mới"}
+          className="mb-4"
+        >
           <form
             className="space-y-4"
             onSubmit={(e) => {

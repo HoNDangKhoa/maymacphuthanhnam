@@ -79,6 +79,7 @@ export function PostForm({
   const [canonicalUrl, setCanonicalUrl] = useState(initial?.canonicalUrl || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     if (!syncSlug) return;
@@ -101,6 +102,7 @@ export function PostForm({
   async function submit(nextIntent: "save" | "save-stay") {
     setSaving(true);
     setError("");
+    setNotice("");
     try {
       const form = new FormData();
       if (initial?.id) form.set("id", initial.id);
@@ -123,8 +125,18 @@ export function PostForm({
       form.set("isNew", initial?.isNew ? "1" : "0");
       form.set("publishedAt", publishedAt);
       const result = await savePost(form);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      if (result.slug !== slug) setSlug(result.slug);
       if (nextIntent === "save-stay") {
-        if (!initial?.id && result?.id) {
+        setNotice(
+          result.slug !== slug
+            ? `Đã lưu. Đường dẫn bị trùng nên đã đổi thành /${result.slug}.`
+            : "Đã lưu bài viết.",
+        );
+        if (!initial?.id && result.id) {
           router.replace(`${listPath}/${result.id}`);
         }
         router.refresh();
@@ -184,6 +196,16 @@ export function PostForm({
         }}
         onExit={() => router.push(listPath)}
       />
+      {error && (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+          {error}
+        </p>
+      )}
+      {notice && (
+        <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+          {notice}
+        </p>
+      )}
 
       <AdminCard title="Đường dẫn (URL không trùng tiêu đề)">
         <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink/70">
@@ -434,7 +456,6 @@ export function PostForm({
         </div>
       </AdminCard>
 
-      {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
     </form>
   );
 }

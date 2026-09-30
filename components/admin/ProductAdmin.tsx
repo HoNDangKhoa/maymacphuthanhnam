@@ -653,6 +653,20 @@ export function ProductCategoriesEditor({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  const addDraft = () => {
+    const key = draft.trim();
+    if (!key) return;
+    if (rows.some((r) => r.key === key)) {
+      setError(`Mã danh mục ${key} đã tồn tại.`);
+      return;
+    }
+    setError("");
+    setRows((r) => [
+      ...r,
+      { key, name: "", description: "", image: "", count: 0 },
+    ]);
+    setDraft("");
+  };
   const update = (i: number, patch: Partial<CategoryRow>) =>
     setRows((r) => r.map((row, j) => (j === i ? { ...row, ...patch } : row)));
 
@@ -799,20 +813,13 @@ export function ProductCategoriesEditor({
               placeholder="Mã danh mục, ví dụ: SHIRT"
               value={draft}
               onChange={(e) => setDraft(e.target.value.toUpperCase())}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                const key = draft.trim();
-                if (!key || rows.some((r) => r.key === key)) return;
-                setRows((r) => [
-                  ...r,
-                  { key, name: "", description: "", image: "", count: 0 },
-                ]);
-                setDraft("");
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                addDraft();
               }}
-            >
+            />
+            <Button type="button" variant="outline" onClick={addDraft}>
               Thêm
             </Button>
           </div>

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { auth, unstable_update } from "@/auth";
 import { invalidateCmsCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/cms";
@@ -50,9 +50,18 @@ export async function savePost(formData: FormData) {
   const publishedRaw = String(formData.get("publishedAt") || "").trim();
   const publishedAt = publishedRaw ? new Date(publishedRaw) : null;
 
-  if (!title) throw new Error("Thiếu tiêu đề");
+  if (!title) return { ok: false as const, error: "Vui lòng nhập tiêu đề." };
 
-  const slug = slugify(slugInput || title);
+  const base = slugify(slugInput || title) || `bai-viet-${Date.now()}`;
+  let slug = base;
+  for (let n = 2; ; n++) {
+    const clash = await prisma.post.findFirst({
+      where: { slug, ...(id ? { NOT: { id } } : {}) },
+      select: { id: true },
+    });
+    if (!clash) break;
+    slug = `${base}-${n}`;
+  }
   let categoryId: string | null = null;
   if (categoryName) {
     const catSlug = `${type.toLowerCase()}-${slugify(categoryName)}`;
@@ -95,19 +104,33 @@ export async function savePost(formData: FormData) {
   };
 
   let savedId = id;
-  if (id) {
-    await prisma.post.update({ where: { id }, data });
-  } else {
-    const created = await prisma.post.create({ data });
-    savedId = created.id;
+  let oldSlug: string | undefined;
+  try {
+    if (id) {
+      const existing = await prisma.post.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+      if (!existing) {
+        return { ok: false as const, error: "Bài viết không còn tồn tại." };
+      }
+      oldSlug = existing.slug;
+      await prisma.post.update({ where: { id }, data });
+    } else {
+      const created = await prisma.post.create({ data });
+      savedId = created.id;
+    }
+  } catch (error) {
+    console.error("[savePost]", error);
+    return { ok: false as const, error: "Không lưu được bài viết. Vui lòng thử lại." };
   }
 
-  await revalidatePublic([slug]);
+  await revalidatePublic([slug, ...(oldSlug ? [oldSlug] : [])]);
   revalidatePath("/admin/posts");
   revalidatePath("/admin/content/news");
   revalidatePath("/admin/content/capabilities");
   revalidatePath("/admin/content/services");
-  return { ok: true, slug, id: savedId };
+  return { ok: true as const, slug, id: savedId };
 }
 
 export async function deletePost(id: string) {
@@ -119,6 +142,59 @@ export async function deletePost(id: string) {
   revalidatePath("/admin/content/news");
   revalidatePath("/admin/content/capabilities");
   revalidatePath("/admin/content/services");
+}
+
+const POST_TYPES = ["NEWS", "CAPABILITY", "SERVICE"];
+
+function revalidateCategoryPages() {
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/content/news");
+  revalidatePath("/admin/content/capabilities");
+  revalidatePath("/admin/content/services");
+}
+
+export async function saveCategory(input: {
+  id?: string;
+  name: string;
+  type: string;
+}) {
+  await requireAdmin();
+  const name = input.name.trim();
+  const type = POST_TYPES.includes(input.type) ? input.type : "NEWS";
+  if (!name) return { ok: false as const, error: "Vui lòng nhập tên danh mục." };
+  const slug = `${type.toLowerCase()}-${slugify(name)}`;
+  const clash = await prisma.category.findFirst({
+    where: { slug, ...(input.id ? { NOT: { id: input.id } } : {}) },
+    select: { id: true },
+  });
+  if (clash) {
+    return { ok: false as const, error: "Danh mục này đã tồn tại." };
+  }
+  if (input.id) {
+    await prisma.category.update({
+      where: { id: input.id },
+      data: { name, type, slug },
+    });
+  } else {
+    await prisma.category.create({ data: { name, type, slug } });
+  }
+  await revalidatePublic();
+  revalidateCategoryPages();
+  return { ok: true as const };
+}
+
+export async function deleteCategory(id: string) {
+  await requireAdmin();
+  await prisma.$transaction([
+    prisma.post.updateMany({
+      where: { categoryId: id },
+      data: { categoryId: null },
+    }),
+    prisma.category.delete({ where: { id } }),
+  ]);
+  await revalidatePublic();
+  revalidateCategoryPages();
+  return { ok: true as const };
 }
 
 export async function saveWorkflowStep(formData: FormData) {
@@ -324,15 +400,16 @@ export async function saveSiteSettings(formData: FormData) {
 
 export async function togglePostPublished(id: string, published: boolean) {
   await requireAdmin();
-  await prisma.post.update({
+  const post = await prisma.post.update({
     where: { id },
     data: {
       status: published ? "PUBLISHED" : "DRAFT",
       isVisible: published,
       publishedAt: published ? new Date() : null,
     },
+    select: { slug: true },
   });
-  await revalidatePublic();
+  await revalidatePublic([post.slug]);
   revalidatePath("/admin/content/news");
   revalidatePath("/admin/content/capabilities");
   revalidatePath("/admin/content/services");
@@ -350,8 +427,12 @@ export async function togglePostFlag(
     data.status = value ? "PUBLISHED" : "DRAFT";
     data.publishedAt = value ? new Date() : null;
   }
-  await prisma.post.update({ where: { id }, data });
-  await revalidatePublic();
+  const post = await prisma.post.update({
+    where: { id },
+    data,
+    select: { slug: true },
+  });
+  await revalidatePublic([post.slug]);
   revalidatePath("/admin/content/news");
   revalidatePath("/admin/content/capabilities");
   revalidatePath("/admin/content/services");
@@ -360,10 +441,12 @@ export async function togglePostFlag(
 
 export async function updatePostSortOrder(id: string, sortOrder: number) {
   await requireAdmin();
-  await prisma.post.update({
+  const post = await prisma.post.update({
     where: { id },
     data: { sortOrder },
+    select: { slug: true },
   });
+  await revalidatePublic([post.slug]);
   revalidatePath("/admin/content/news");
   revalidatePath("/admin/content/capabilities");
   revalidatePath("/admin/content/services");
@@ -400,6 +483,28 @@ export async function changePassword(formData: FormData) {
     data: { passwordHash },
   });
 
+  return { ok: true as const };
+}
+
+export async function updateAccount(input: { name: string; email: string }) {
+  const session = await requireAdmin();
+  const name = input.name.trim();
+  const email = input.email.trim().toLowerCase();
+  if (!name) return { ok: false as const, error: "Vui lòng nhập họ tên." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false as const, error: "Email không hợp lệ." };
+  }
+  const clash = await prisma.user.findFirst({
+    where: { email, NOT: { id: session.user!.id } },
+    select: { id: true },
+  });
+  if (clash) return { ok: false as const, error: "Email đã được dùng cho tài khoản khác." };
+  await prisma.user.update({
+    where: { id: session.user!.id },
+    data: { name, email },
+  });
+  await unstable_update({ user: { name, email } });
+  revalidatePath("/admin", "layout");
   return { ok: true as const };
 }
 

@@ -1,28 +1,28 @@
 import { auth } from "@/auth";
+import { AccountForm } from "@/components/admin/AccountForm";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
-import { Input, Label } from "@/components/ui/input";
+import { prisma } from "@/lib/prisma";
 
 export default async function AccountPage() {
   const session = await auth();
+  const user = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true, email: true, role: true },
+      })
+    : null;
 
   return (
     <div>
       <AdminPageHeader title="Tài khoản" />
       <AdminCard>
-        <div className="max-w-lg space-y-4">
-          <div>
-            <Label>Họ tên</Label>
-            <Input defaultValue={session?.user?.name || ""} readOnly />
-          </div>
-          <div>
-            <Label>Email</Label>
-            <Input defaultValue={session?.user?.email || ""} readOnly />
-          </div>
-          <div>
-            <Label>Vai trò</Label>
-            <Input defaultValue={session?.user?.role || "ADMIN"} readOnly />
-          </div>
-        </div>
+        <AccountForm
+          initial={{
+            name: user?.name || session?.user?.name || "",
+            email: user?.email || session?.user?.email || "",
+            role: user?.role || session?.user?.role || "ADMIN",
+          }}
+        />
       </AdminCard>
     </div>
   );
