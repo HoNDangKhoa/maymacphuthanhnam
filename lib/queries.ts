@@ -245,6 +245,10 @@ export async function getSiteSettings() {
       row.aboutArticle && typeof row.aboutArticle === "object"
         ? (row.aboutArticle as typeof defaults.aboutArticle)
         : defaults.aboutArticle,
+    capabilityArticle:
+      row.capabilityArticle && typeof row.capabilityArticle === "object"
+        ? (row.capabilityArticle as typeof defaults.capabilityArticle)
+        : defaults.capabilityArticle,
   });
 
   try {
@@ -291,6 +295,7 @@ export async function getSiteSettings() {
         homeChrome: banner.homeChrome,
         aboutSections: banner.aboutSections,
         aboutArticle: banner.aboutArticle,
+        capabilityArticle: banner.capabilityArticle,
         social,
       };
     });
@@ -336,6 +341,7 @@ export async function getSiteSettings() {
     homeChrome: defaults.homeChrome,
     aboutSections: defaults.aboutSections,
     aboutArticle: defaults.aboutArticle,
+    capabilityArticle: defaults.capabilityArticle,
     social: {} as Record<string, string>,
   });
 }

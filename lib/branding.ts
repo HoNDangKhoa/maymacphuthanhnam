@@ -3,6 +3,7 @@ import {
   type AboutSectionItem,
   aboutArticleFromSections,
   defaultAboutArticle,
+  defaultCapabilityArticle,
   type HomeLookbookContent,
   type HomeSectionChrome,
   type HomeStatItem,
@@ -75,6 +76,7 @@ export type BannerData = {
   homeChrome: HomeSectionChrome;
   aboutSections: AboutSectionItem[];
   aboutArticle: AboutArticle;
+  capabilityArticle: AboutArticle;
 };
 
 export const PAGE_SEO_KEYS = [
@@ -147,6 +149,7 @@ export function defaultBannerData(): BannerData {
     homeChrome: defaultHomeSectionChrome(),
     aboutSections: defaultAboutSections(),
     aboutArticle: defaultAboutArticle(),
+    capabilityArticle: defaultCapabilityArticle(),
   };
 }
 
@@ -229,6 +232,14 @@ export function parseBannerData(raw?: string | null): BannerData {
                 ? parsed.aboutSections
                 : base.aboutSections,
             ),
+      capabilityArticle:
+        parsed.capabilityArticle && typeof parsed.capabilityArticle === "object"
+          ? {
+              title: parsed.capabilityArticle.title ?? "",
+              content: parsed.capabilityArticle.content ?? "",
+              imageUrl: parsed.capabilityArticle.imageUrl ?? "",
+            }
+          : base.capabilityArticle,
     };
   } catch {
     return base;

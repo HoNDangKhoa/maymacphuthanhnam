@@ -42,7 +42,7 @@ export const adminNav: AdminNavItem[] = [
     icon: "posts",
     children: [
       { label: "Tin tức", href: "/admin/content/news" },
-      { label: "Năng lực sản xuất", href: "/admin/content/capabilities" },
+      { label: "Bài viết năng lực", href: "/admin/content/capabilities" },
       { label: "Dịch vụ", href: "/admin/content/services" },
       { label: "Danh mục", href: "/admin/categories" },
     ],
@@ -67,6 +67,7 @@ export const adminNav: AdminNavItem[] = [
       { label: "Quy trình làm việc", href: "/admin/home/workflow" },
       { label: "Đánh giá khách hàng", href: "/admin/home/testimonials" },
       { label: "Giới thiệu", href: "/admin/static/about" },
+      { label: "Năng lực sản xuất", href: "/admin/static/capability" },
       { label: "Footer", href: "/admin/static/footer" },
     ],
   },

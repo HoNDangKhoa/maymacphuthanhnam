@@ -9,7 +9,8 @@ import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import {
-  saveAboutArticle,
+  type PageArticleKey,
+  savePageArticle,
   saveHomeChrome,
   saveHomeLookbook,
   saveHomeStats,
@@ -28,6 +29,7 @@ import { toRichHtml } from "@/lib/rich-text";
 import {
   STAT_ICON_OPTIONS,
   defaultAboutArticle,
+  defaultCapabilityArticle,
   defaultStatIcon,
   newHomeStat,
   newTestimonial,
@@ -697,7 +699,35 @@ export function HomeChromeEditor({
   );
 }
 
+const PAGE_ARTICLE_CONFIG = {
+  about: {
+    title: "Giới thiệu",
+    path: "/gioi-thieu",
+    noun: "bài giới thiệu",
+    defaults: defaultAboutArticle,
+    hint: "Dùng định dạng Heading trong trình soạn thảo để chia đoạn (lịch sử, tầm nhìn, giá trị…).",
+  },
+  capability: {
+    title: "Năng lực sản xuất",
+    path: "/nang-luc-san-xuat",
+    noun: "bài năng lực sản xuất",
+    defaults: defaultCapabilityArticle,
+    hint: "Dùng định dạng Heading để chia đoạn (nhà xưởng, máy móc, phòng mẫu, kiểm soát chất lượng…).",
+  },
+} as const;
+
 export function AboutEditor({ initial }: { initial: AboutArticle }) {
+  return <PageArticleEditor page="about" initial={initial} />;
+}
+
+export function PageArticleEditor({
+  page,
+  initial,
+}: {
+  page: PageArticleKey;
+  initial: AboutArticle;
+}) {
+  const config = PAGE_ARTICLE_CONFIG[page];
   const router = useRouter();
   const [article, setArticle] = useState<AboutArticle>(() => ({
     ...initial,
@@ -712,7 +742,7 @@ export function AboutEditor({ initial }: { initial: AboutArticle }) {
     startTransition(async () => {
       setMessage("");
       setError("");
-      const result = await saveAboutArticle(next);
+      const result = await savePageArticle(page, next);
       if (!result.ok) {
         setError(result.error);
         return;
@@ -724,18 +754,19 @@ export function AboutEditor({ initial }: { initial: AboutArticle }) {
 
   return (
     <div>
-      <AdminPageHeader title="Giới thiệu" />
+      <AdminPageHeader title={config.title} />
       <p className="mb-5 text-sm text-ink/55">
-        Bài viết giới thiệu hiển thị tại trang{" "}
-        <Link href="/gioi-thieu" target="_blank" className="font-semibold text-[#f59e0b]">
-          /gioi-thieu
+        Bài viết hiển thị tại trang{" "}
+        <Link href={config.path} target="_blank" className="font-semibold text-[#f59e0b]">
+          {config.path}
         </Link>
-        . Dùng định dạng Heading trong trình soạn thảo để chia đoạn (lịch sử, tầm nhìn, giá trị…).
+        . {config.hint} Có thể dán toàn bộ mã HTML (kèm <code>&lt;style&gt;</code>) qua nút
+        “Mã HTML” để hiển thị đúng thiết kế riêng.
       </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          save(article, "Đã lưu bài giới thiệu.");
+          save(article, `Đã lưu ${config.noun}.`);
         }}
       >
         <SaveBar pending={pending} message={message} />
@@ -772,11 +803,11 @@ export function AboutEditor({ initial }: { initial: AboutArticle }) {
                   disabled={pending}
                   className="text-xs font-semibold text-red-600 disabled:opacity-50"
                   onClick={() => {
-                    if (!window.confirm("Xóa toàn bộ nội dung bài giới thiệu?")) return;
+                    if (!window.confirm(`Xóa toàn bộ nội dung ${config.noun}?`)) return;
                     const next = { ...article, content: "" };
                     setArticle(next);
                     setEditorKey((k) => k + 1);
-                    save(next, "Đã xóa nội dung bài giới thiệu.");
+                    save(next, `Đã xóa nội dung ${config.noun}.`);
                   }}
                 >
                   Xóa nội dung
@@ -786,8 +817,8 @@ export function AboutEditor({ initial }: { initial: AboutArticle }) {
                   disabled={pending}
                   className="text-xs font-semibold text-ink/60 hover:text-ink disabled:opacity-50"
                   onClick={() => {
-                    if (!window.confirm("Khôi phục nội dung giới thiệu mặc định?")) return;
-                    const next = { ...defaultAboutArticle(), imageUrl: article.imageUrl };
+                    if (!window.confirm(`Khôi phục nội dung mặc định cho ${config.noun}?`)) return;
+                    const next = { ...config.defaults(), imageUrl: article.imageUrl };
                     setArticle(next);
                     setEditorKey((k) => k + 1);
                     save(next, "Đã khôi phục nội dung mặc định.");

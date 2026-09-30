@@ -755,25 +755,42 @@ export async function saveHomeChrome(
   await saveBannerData((data) => ({ ...data, homeChrome }));
 }
 
-export async function saveAboutArticle(
+export type PageArticleKey = "about" | "capability";
+
+const PAGE_ARTICLE_FIELDS = {
+  about: "aboutArticle",
+  capability: "capabilityArticle",
+} as const;
+
+export async function savePageArticle(
+  page: PageArticleKey,
   article: import("@/lib/home-content").AboutArticle,
 ) {
+  const field = PAGE_ARTICLE_FIELDS[page];
+  if (!field) return { ok: false as const, error: "Trang không hợp lệ." };
   try {
     await saveBannerData((data) => ({
       ...data,
-      aboutArticle: {
+      [field]: {
         title: String(article.title ?? "").trim(),
         content: String(article.content ?? ""),
         imageUrl: String(article.imageUrl ?? "").trim(),
       },
     }));
+    revalidatePath(page === "about" ? "/admin/static/about" : "/admin/static/capability");
     return { ok: true as const };
   } catch {
     return {
       ok: false as const,
-      error: "Không lưu được bài giới thiệu. Vui lòng thử lại.",
+      error: "Không lưu được bài viết. Vui lòng thử lại.",
     };
   }
+}
+
+export async function saveAboutArticle(
+  article: import("@/lib/home-content").AboutArticle,
+) {
+  return savePageArticle("about", article);
 }
 
 export async function saveSlideshowItems(

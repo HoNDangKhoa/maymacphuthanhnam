@@ -323,6 +323,24 @@ export function defaultAboutArticle(): AboutArticle {
   return aboutArticleFromSections();
 }
 
+export function defaultCapabilityArticle(): AboutArticle {
+  return {
+    title: "Công nghệ dây chuyền & hệ thống chất lượng",
+    imageUrl: "",
+    content: [
+      "<h2>Nhà xưởng & nhân sự</h2>",
+      "<p>Phú Thành Nam vận hành hệ thống nhà xưởng khoảng 1.480 m² cùng đội ngũ gần 200 nhân sự sản xuất, tổ chức đồng bộ các công đoạn từ chuẩn bị nguyên phụ liệu, cắt, may đến hoàn thiện và đóng gói.</p>",
+      "<h2>Máy móc & thiết bị</h2>",
+      "<p>Hệ thống máy móc chuyên dụng giúp nâng cao độ ổn định, tính chính xác và hiệu quả sản xuất:</p>",
+      "<ul><li>Máy tra vải</li><li>Máy cắt</li><li>Máy ép keo</li><li>Máy đính nút</li><li>Máy dò kim</li><li>Phần mềm Gerber</li></ul>",
+      "<h2>Phòng mẫu</h2>",
+      "<p>Tiếp nhận mẫu, phân tích kỹ thuật và phát triển mẫu theo thông số của khách hàng trước khi đưa vào sản xuất hàng loạt.</p>",
+      "<h2>Kiểm soát chất lượng</h2>",
+      "<p>Chất lượng được kiểm soát ở từng công đoạn — từ nguyên liệu, kỹ thuật cắt may đến kiểm tra thành phẩm — nhằm giảm sai sót và đáp ứng tiêu chuẩn của từng đơn hàng xuất khẩu.</p>",
+    ].join(""),
+  };
+}
+
 export function newHomeStat(partial?: Partial<HomeStatItem>): HomeStatItem {
   return {
     id: uid("stat"),
