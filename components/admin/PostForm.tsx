@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import {
@@ -80,11 +80,6 @@ export function PostForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-
-  useEffect(() => {
-    if (!syncSlug) return;
-    setSlug(slugify(title));
-  }, [title, syncSlug]);
 
   const titleCount = title.length;
   const seoTitleCount = metaTitle.length;
@@ -212,7 +207,10 @@ export function PostForm({
           <input
             type="checkbox"
             checked={syncSlug}
-            onChange={(e) => setSyncSlug(e.target.checked)}
+            onChange={(e) => {
+              setSyncSlug(e.target.checked);
+              if (e.target.checked) setSlug(slugify(title));
+            }}
           />
           Thay đổi đường dẫn theo tiêu đề mới
         </label>
@@ -239,7 +237,10 @@ export function PostForm({
               value={title}
               maxLength={120}
               required
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (syncSlug) setSlug(slugify(e.target.value));
+              }}
             />
           </div>
           <div>

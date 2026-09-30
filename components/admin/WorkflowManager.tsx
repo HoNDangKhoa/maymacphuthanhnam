@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -60,7 +60,8 @@ function SortableRow({
     >
       <button
         type="button"
-        className="cursor-grab text-ink/40"
+        className="-m-2 flex h-10 w-10 shrink-0 cursor-grab touch-none items-center justify-center text-ink/40"
+        aria-label="Kéo để sắp xếp"
         {...attributes}
         {...listeners}
       >
@@ -88,9 +89,11 @@ export function WorkflowManager({ initial }: { initial: Step[] }) {
   const [creating, setCreating] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
 
-  useEffect(() => {
+  const [prevInitial, setPrevInitial] = useState(initial);
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
     setItems(initial);
-  }, [initial]);
+  }
 
   async function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;

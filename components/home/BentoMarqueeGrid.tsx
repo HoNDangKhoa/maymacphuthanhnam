@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import { useOverlay } from "@/components/common/useOverlay";
 
 type GalleryItem = {
   id: string;
@@ -52,7 +53,7 @@ function MarqueeRow({
             sizes="360px"
           />
           <div className="absolute inset-0 bg-ink/0 transition duration-300 group-hover:bg-ink/55" />
-          <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 transition group-hover:opacity-100">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 to-transparent p-4 transition [@media(hover:hover)]:bg-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">
             <p className="text-left text-sm font-semibold text-paper">
               {item.title}
             </p>
@@ -77,6 +78,7 @@ export function BentoMarqueeGrid({
 }) {
   const galleryItems = items;
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
+  useOverlay(!!lightbox, () => setLightbox(null));
 
   if (!galleryItems.length) return null;
 
@@ -125,7 +127,7 @@ export function BentoMarqueeGrid({
         >
           <button
             type="button"
-            className="absolute top-5 right-5 text-paper"
+            className="absolute top-3 right-3 z-10 flex h-11 w-11 items-center justify-center text-paper"
             aria-label="Đóng"
             onClick={() => setLightbox(null)}
           >

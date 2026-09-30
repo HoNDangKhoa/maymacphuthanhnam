@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
+import { useOverlay } from "@/components/common/useOverlay";
 import { navItems } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,12 @@ export function Header({
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
+  const [menuPath, setMenuPath] = useState(pathname);
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setOpen(false);
+  }
+  useOverlay(open, () => setOpen(false));
   const isHome = pathname === "/";
   const solid = scrolled || !isHome || open;
 
@@ -45,8 +52,11 @@ export function Header({
   }, []);
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -132,8 +142,13 @@ export function Header({
 
         <button
           type="button"
-          className={cn("lg:hidden", solid ? "text-ink" : "text-paper")}
+          className={cn(
+            "-mr-2 flex h-11 w-11 items-center justify-center lg:hidden",
+            solid ? "text-ink" : "text-paper",
+          )}
           aria-label="Menu"
+          aria-expanded={open}
+          aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -141,26 +156,31 @@ export function Header({
       </div>
 
       {open && (
-        <div className="max-h-[calc(100svh-4.5rem)] overflow-y-auto border-t border-[var(--line)] bg-paper px-5 py-6 lg:hidden">
-          <nav className="flex flex-col gap-4">
+        <div
+          id="mobile-nav"
+          className="max-h-[calc(100svh-4.5rem)] overflow-y-auto overscroll-contain border-t border-[var(--line)] bg-paper px-5 py-4 lg:hidden"
+        >
+          <nav className="flex flex-col gap-1">
             {navItems.map((item) => (
               <div key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => setOpen(false)}
                   className={cn(
-                    "text-base font-medium",
+                    "block py-2 text-base font-medium",
                     isActive(item.href) ? "text-accent" : "text-ink",
                   )}
                 >
                   {item.label}
                 </Link>
                 {item.href === PRODUCTS_HREF && productMenu.length ? (
-                  <div className="mt-3 flex flex-col gap-3 border-l border-[var(--line)] pl-4">
+                  <div className="mb-2 flex flex-col border-l border-[var(--line)] pl-4">
                     {productMenu.map((sub) => (
                       <Link
                         key={sub.href}
                         href={sub.href}
-                        className="text-sm text-ink/70"
+                        onClick={() => setOpen(false)}
+                        className="block py-2 text-sm text-ink/70"
                       >
                         {sub.label}
                       </Link>

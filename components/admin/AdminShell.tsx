@@ -15,6 +15,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useOverlay } from "@/components/common/useOverlay";
 import { adminIconMap, adminNav } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  useOverlay(mobileOpen, () => setMobileOpen(false));
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {};
     adminNav.forEach((item) => {
@@ -79,7 +81,7 @@ export function AdminShell({
   }, [pathname]);
 
   const Sidebar = (
-    <aside className="flex h-full w-[280px] flex-col bg-white text-ink">
+    <aside className="flex h-full w-[280px] max-w-[85vw] flex-col bg-white text-ink">
       <div className="border-b border-black/5 px-4 py-4">
         <Link href="/admin" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f59e0b] text-sm font-semibold text-white">
@@ -194,7 +196,7 @@ export function AdminShell({
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-black/5 bg-white px-4 md:px-6">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
                 className="rounded-lg p-2 hover:bg-black/5 lg:hidden"
@@ -203,7 +205,7 @@ export function AdminShell({
               >
                 {mobileOpen ? <X size={18} /> : <Menu size={18} />}
               </button>
-              <p className="text-sm font-semibold text-ink/70">
+              <p className="truncate text-sm font-semibold text-ink/70">
                 Xin chào,{" "}
                 <span className="text-[#f59e0b]">{userName}</span> !
               </p>

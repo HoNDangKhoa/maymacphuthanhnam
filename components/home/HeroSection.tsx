@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PillLink } from "@/components/common/PillLink";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +39,7 @@ export function HeroSection({
       ? slides
       : [{ id: "fallback", title: "", link: "", imageUrl: FALLBACK_IMAGE }];
   const [index, setIndex] = useState(0);
+  const touch = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (images.length < 2) return;
@@ -46,13 +47,27 @@ export function HeroSection({
       setIndex((i) => (i + 1) % images.length);
     }, 6000);
     return () => window.clearInterval(timer);
-  }, [images.length]);
+  }, [images.length, index]);
 
   const active = images[index] ?? images[0];
   const ctaHref = active.link || content.ctaHref;
 
   return (
-    <section className="relative min-h-[92svh] overflow-hidden bg-ink md:min-h-[100svh]">
+    <section
+      className="relative min-h-[92svh] overflow-hidden bg-ink md:min-h-[100svh]"
+      onTouchStart={(e) => {
+        touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }}
+      onTouchEnd={(e) => {
+        const start = touch.current;
+        touch.current = null;
+        if (!start || images.length < 2) return;
+        const dx = e.changedTouches[0].clientX - start.x;
+        const dy = e.changedTouches[0].clientY - start.y;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+        setIndex((i) => (i + (dx < 0 ? 1 : -1) + images.length) % images.length);
+      }}
+    >
       {images.map((slide, i) =>
         isVideo(slide.imageUrl) ? (
           <video
@@ -100,18 +115,23 @@ export function HeroSection({
       </div>
 
       {images.length > 1 && (
-        <div className="absolute top-1/2 right-4 z-10 flex -translate-y-1/2 flex-col gap-2 md:right-8">
+        <div className="absolute top-1/2 right-1 z-10 flex -translate-y-1/2 flex-col md:right-5">
           {images.map((slide, i) => (
             <button
               key={slide.id}
               type="button"
               aria-label={`Slide ${i + 1}`}
-              className={cn(
-                "h-6 w-1.5 rounded-full transition",
-                i === index ? "bg-accent" : "bg-paper/35 hover:bg-paper/60",
-              )}
+              aria-current={i === index}
+              className="group flex h-8 w-9 items-center justify-center"
               onClick={() => setIndex(i)}
-            />
+            >
+              <span
+                className={cn(
+                  "h-6 w-1.5 rounded-full transition",
+                  i === index ? "bg-accent" : "bg-paper/35 group-hover:bg-paper/60",
+                )}
+              />
+            </button>
           ))}
         </div>
       )}

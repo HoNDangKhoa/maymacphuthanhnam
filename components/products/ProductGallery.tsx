@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useOverlay } from "@/components/common/useOverlay";
 
 function Watermark({ logoUrl }: { logoUrl?: string }) {
   if (logoUrl) {
@@ -52,10 +53,12 @@ export function ProductGallery({
     [images.length],
   );
 
+  useOverlay(open !== null, () => setOpen(null));
+  const touchX = useRef<number | null>(null);
+
   useEffect(() => {
     if (open === null) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(null);
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
     };
@@ -90,12 +93,23 @@ export function ProductGallery({
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/90 p-5"
           onClick={() => setOpen(null)}
+          onTouchStart={(e) => {
+            touchX.current = e.touches[0]?.clientX ?? null;
+          }}
+          onTouchEnd={(e) => {
+            const start = touchX.current;
+            touchX.current = null;
+            const end = e.changedTouches[0]?.clientX;
+            if (start === null || end === undefined || images.length < 2) return;
+            const dx = end - start;
+            if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+          }}
           role="dialog"
           aria-modal
         >
           <button
             type="button"
-            className="absolute top-5 right-5 text-paper"
+            className="absolute top-3 right-3 z-10 flex h-11 w-11 items-center justify-center text-paper"
             aria-label="Đóng"
             onClick={() => setOpen(null)}
           >
@@ -106,7 +120,7 @@ export function ProductGallery({
               <button
                 type="button"
                 aria-label="Ảnh trước"
-                className="absolute left-4 flex h-11 w-11 items-center justify-center rounded-full bg-paper/10 text-paper hover:bg-paper/20"
+                className="absolute left-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-paper/10 text-paper hover:bg-paper/20"
                 onClick={(e) => {
                   e.stopPropagation();
                   step(-1);
@@ -117,7 +131,7 @@ export function ProductGallery({
               <button
                 type="button"
                 aria-label="Ảnh tiếp"
-                className="absolute right-4 flex h-11 w-11 items-center justify-center rounded-full bg-paper/10 text-paper hover:bg-paper/20"
+                className="absolute right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-paper/10 text-paper hover:bg-paper/20"
                 onClick={(e) => {
                   e.stopPropagation();
                   step(1);
