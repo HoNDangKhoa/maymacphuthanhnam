@@ -16,6 +16,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import { useState } from "react";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,6 +103,7 @@ function SortableCard({
 
 export function GalleryManager({ initial }: { initial: Item[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [items, setItems] = useState(initial);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Item | null>(null);
@@ -138,6 +141,7 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
 
   return (
     <div className="space-y-6">
+      {dialog}
       <div className="flex justify-end">
         <Button type="button" onClick={() => openForm(null)}>
           Thêm ảnh
@@ -170,9 +174,11 @@ export function GalleryManager({ initial }: { initial: Item[] }) {
                 }}
                 onEdit={() => openForm(item)}
                 onDelete={async () => {
-                  if (!confirm("Xoá ảnh này?")) return;
+                  const ok = await ask("Xóa ảnh này?", "Ảnh sẽ bị gỡ khỏi gallery xưởng.");
+                  if (!ok) return;
                   await deleteGalleryItem(item.id);
                   setItems((prev) => prev.filter((i) => i.id !== item.id));
+                  pushToast("Đã xóa ảnh.");
                   router.refresh();
                 }}
               />

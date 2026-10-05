@@ -16,6 +16,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import { useState } from "react";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,6 +86,7 @@ function SortableRow({
 
 export function WorkflowManager({ initial }: { initial: Step[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [items, setItems] = useState(initial);
   const [editing, setEditing] = useState<Step | null>(null);
   const [creating, setCreating] = useState(false);
@@ -121,6 +124,7 @@ export function WorkflowManager({ initial }: { initial: Step[] }) {
 
   return (
     <div className="space-y-6">
+      {dialog}
       <div className="flex justify-end">
         <Button
           type="button"
@@ -152,9 +156,14 @@ export function WorkflowManager({ initial }: { initial: Step[] }) {
                   setEditing(step);
                 }}
                 onDelete={async () => {
-                  if (!confirm("Xoá bước này?")) return;
+                  const ok = await ask(
+                    `Xóa bước "${step.title}"?`,
+                    "Bước này sẽ biến mất khỏi quy trình trên trang chủ.",
+                  );
+                  if (!ok) return;
                   await deleteWorkflowStep(step.id);
                   setItems((prev) => prev.filter((i) => i.id !== step.id));
+                  pushToast("Đã xóa bước.");
                   router.refresh();
                 }}
               />

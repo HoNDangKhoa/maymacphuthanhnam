@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useOverlay } from "@/components/common/useOverlay";
+import { ToastHost } from "@/components/admin/toast";
 import { adminIconMap, adminNav } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 
@@ -300,6 +301,7 @@ export function AdminShell({
 
           <main className="flex-1 p-4 md:p-6">{children}</main>
 
+          <ToastHost />
           <footer className="border-t border-black/5 bg-white px-4 py-4 text-center text-xs font-semibold text-ink/40 md:px-6">
             <p>May Mặc Phú Thành Nam CMS</p>
             <p className="mt-1">

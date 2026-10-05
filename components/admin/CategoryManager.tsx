@@ -2,6 +2,7 @@
 
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { useState, useTransition } from "react";
 import { AdminCard } from "@/components/admin/AdminChrome";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ const selectClass =
 
 export function CategoryManager({ initial }: { initial: Row[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [rows, setRows] = useState(initial);
   const [draft, setDraft] = useState({ name: "", type: "NEWS" });
   const [message, setMessage] = useState("");
@@ -60,6 +62,7 @@ export function CategoryManager({ initial }: { initial: Row[] }) {
 
   return (
     <div className="space-y-4">
+      {dialog}
       <AdminCard title="Thêm danh mục">
         <form
           className="flex flex-wrap items-center gap-3"
@@ -175,11 +178,14 @@ export function CategoryManager({ initial }: { initial: Row[] }) {
                         disabled={pending}
                         className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
                         onClick={() => {
-                          const warn = row.postCount
-                            ? ` ${row.postCount} bài viết sẽ được bỏ khỏi danh mục này.`
-                            : "";
-                          if (!confirm(`Xóa danh mục "${row.name}"?${warn}`)) return;
-                          run(() => deleteCategory(row.id), "Đã xóa danh mục.");
+                          void (async () => {
+                            const warn = row.postCount
+                              ? `${row.postCount} bài viết sẽ được bỏ khỏi danh mục này.`
+                              : "Danh mục sẽ bị xóa khỏi hệ thống.";
+                            const ok = await ask(`Xóa danh mục "${row.name}"?`, warn);
+                            if (!ok) return;
+                            run(() => deleteCategory(row.id), "Đã xóa danh mục.");
+                          })();
                         }}
                       >
                         <Trash2 size={14} />

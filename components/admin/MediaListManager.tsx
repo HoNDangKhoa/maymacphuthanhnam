@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useMemo, useState, useTransition } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { AdminCard } from "@/components/admin/AdminChrome";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import {
   FormSaveBar,
   ImageDropzone,
@@ -27,6 +29,7 @@ export function MediaListManager({
   kind: "slideshow" | "social";
   initial: MediaListItem[];
 }) {
+  const { ask, dialog } = useConfirm();
   const [items, setItems] = useState(initial);
   const [editing, setEditing] = useState<MediaListItem | null>(null);
   const [q, setQ] = useState("");
@@ -57,6 +60,7 @@ export function MediaListManager({
 
   return (
     <div>
+      {dialog}
       <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
@@ -79,9 +83,13 @@ export function MediaListManager({
               : "cursor-not-allowed bg-[#f8b4b4]/70",
           )}
           onClick={() => {
-            if (!confirm(`Xóa ${selected.length} mục?`)) return;
-            persist(items.filter((i) => !selected.includes(i.id)));
-            setSelected([]);
+            void (async () => {
+              const ok = await ask(`Xóa ${selected.length} mục đã chọn?`);
+              if (!ok) return;
+              persist(items.filter((i) => !selected.includes(i.id)));
+              setSelected([]);
+              pushToast("Đã xóa các mục đã chọn.");
+            })();
           }}
         >
           Xóa tất cả
@@ -305,8 +313,12 @@ export function MediaListManager({
                         type="button"
                         className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600"
                         onClick={() => {
-                          if (!confirm("Xóa mục này?")) return;
-                          persist(items.filter((i) => i.id !== row.id));
+                          void (async () => {
+                            const ok = await ask("Xóa mục này?");
+                            if (!ok) return;
+                            persist(items.filter((i) => i.id !== row.id));
+                            pushToast("Đã xóa mục.");
+                          })();
                         }}
                       >
                         <Trash2 size={14} /> Xóa

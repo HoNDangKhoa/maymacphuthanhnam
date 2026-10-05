@@ -81,6 +81,18 @@ export function PostForm({
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  const seoChecks = useMemo(() => {
+    const kw = seoKeywords.split(",")[0]?.trim().toLowerCase() ?? "";
+    return [
+      { ok: metaTitle.length >= 10 && metaTitle.length <= 70, label: "Độ dài tiêu đề phù hợp (10 - 70 ký tự)" },
+      { ok: metaDescription.length >= 50 && metaDescription.length <= 160, label: "Độ dài mô tả phù hợp (50 - 160 ký tự)" },
+      { ok: !!kw && metaTitle.toLowerCase().includes(kw), label: "Từ khóa xuất hiện trong tiêu đề" },
+      { ok: !!kw && metaDescription.toLowerCase().includes(kw), label: "Từ khóa xuất hiện trong mô tả" },
+      { ok: !!thumbnail, label: "Ảnh đại diện dùng làm OG image" },
+      { ok: !!canonicalUrl.trim(), label: "Canonical URL đã có" },
+    ];
+  }, [metaTitle, metaDescription, seoKeywords, thumbnail, canonicalUrl]);
+
   const titleCount = title.length;
   const seoTitleCount = metaTitle.length;
   const seoKwCount = seoKeywords.length;
@@ -454,6 +466,27 @@ export function PostForm({
               placeholder="https://"
             />
           </div>
+          <ul className="space-y-1.5 rounded-xl border border-black/8 bg-[#fafafa] p-4">
+            {seoChecks.map((item) => (
+              <li
+                key={item.label}
+                className={cn(
+                  "flex items-center gap-2 text-sm font-semibold",
+                  item.ok ? "text-emerald-600" : "text-ink/40",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white",
+                    item.ok ? "bg-emerald-500" : "bg-black/20",
+                  )}
+                >
+                  {item.ok ? "✓" : "–"}
+                </span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
         </div>
       </AdminCard>
 

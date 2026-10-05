@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import { Button } from "@/components/ui/button";
 import { Badge, Input, Select } from "@/components/ui/input";
 import { INQUIRY_STATUS_LABEL } from "@/lib/cms";
@@ -22,6 +24,7 @@ type Inquiry = {
 
 export function InquiriesTable({ initial }: { initial: Inquiry[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -74,6 +77,7 @@ export function InquiriesTable({ initial }: { initial: Inquiry[] }) {
 
   return (
     <div className="space-y-4">
+      {dialog}
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <p className="mb-1 text-xs text-ink/50">Trạng thái</p>
@@ -183,8 +187,10 @@ export function InquiriesTable({ initial }: { initial: Inquiry[] }) {
                     size="sm"
                     variant="danger"
                     onClick={async () => {
-                      if (!confirm("Xoá liên hệ này?")) return;
+                      const ok = await ask("Xóa liên hệ này?", "Thư sẽ bị xóa khỏi hộp thư admin.");
+                      if (!ok) return;
                       await deleteInquiry(row.id);
+                      pushToast("Đã xóa liên hệ.");
                       router.refresh();
                     }}
                   >

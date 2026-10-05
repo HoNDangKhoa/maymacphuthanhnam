@@ -4,6 +4,8 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, FileText, Trash2 } from "lucide-react";
 import { AdminCard } from "@/components/admin/AdminChrome";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import { deleteMedia, type MediaItem } from "@/lib/media-actions";
 import { uploadAsset } from "@/lib/upload-client";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,7 @@ function formatSize(bytes: number) {
 
 export function MediaLibrary({ items }: { items: MediaItem[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [kind, setKind] = useState<Kind>("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
@@ -69,12 +72,19 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
   }
 
   function remove(urls: string[]) {
-    if (!confirm(`Xóa ${urls.length} file? Nội dung đang dùng file này sẽ mất ảnh.`)) return;
-    startTransition(async () => {
-      await deleteMedia(urls);
-      setSelected((s) => s.filter((u) => !urls.includes(u)));
-      router.refresh();
-    });
+    void (async () => {
+      const ok = await ask(
+        `Xóa ${urls.length} file?`,
+        "Nội dung đang dùng các file này sẽ mất ảnh.",
+      );
+      if (!ok) return;
+      startTransition(async () => {
+        await deleteMedia(urls);
+        setSelected((s) => s.filter((u) => !urls.includes(u)));
+        pushToast("Đã xóa file.");
+        router.refresh();
+      });
+    })();
   }
 
   async function copy(url: string) {
@@ -86,6 +96,7 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
 
   return (
     <div>
+      {dialog}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#f59e0b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#d97706]">
           + Tải file lên

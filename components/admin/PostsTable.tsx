@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { pushToast } from "@/components/admin/toast";
 import { deletePost } from "@/lib/actions";
 import { POST_STATUS_LABEL, POST_TYPE_LABEL } from "@/lib/cms";
 import { Badge } from "@/components/ui/input";
@@ -19,9 +21,11 @@ type PostRow = {
 
 export function PostsTable({ posts }: { posts: PostRow[] }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
 
   return (
     <div className="overflow-x-auto border border-[var(--line)] bg-paper">
+      {dialog}
       <table className="w-full min-w-[720px] text-left text-sm">
         <thead className="border-b border-[var(--line)] bg-mist/50 text-xs tracking-wider uppercase">
           <tr>
@@ -65,8 +69,10 @@ export function PostsTable({ posts }: { posts: PostRow[] }) {
                     size="sm"
                     variant="danger"
                     onClick={async () => {
-                      if (!confirm("Xoá bài viết này?")) return;
+                      const ok = await ask(`Xóa "${post.title}"?`);
+                      if (!ok) return;
                       await deletePost(post.id);
+                      pushToast("Đã xóa bài viết.");
                       router.refresh();
                     }}
                   >

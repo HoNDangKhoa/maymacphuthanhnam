@@ -12,6 +12,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { paginate, TablePager } from "@/components/admin/TablePager";
+import { pushToast } from "@/components/admin/toast";
 import { ImageDropzone } from "@/components/admin/BrandAssetForm";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
@@ -79,9 +82,12 @@ export function ProductList({
   categories: CategoryOption[];
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [listKey, setListKey] = useState("");
   const [pending, startTransition] = useTransition();
   const nameOf = (key: string) =>
     categories.find((c) => c.key === key)?.name ?? key;
@@ -97,6 +103,14 @@ export function ProductList({
     );
   }, [products, query, category]);
 
+  const nextKey = `${query}|${category}|${rows.length}`;
+  if (listKey !== nextKey) {
+    setListKey(nextKey);
+    setPage(1);
+    setSelected([]);
+  }
+  const view = paginate(rows, page);
+
   const run = (fn: () => Promise<unknown>) =>
     startTransition(async () => {
       await fn();
@@ -105,6 +119,7 @@ export function ProductList({
 
   return (
     <div>
+      {dialog}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Link
           href="/admin/products/new"
@@ -116,11 +131,18 @@ export function ProductList({
           type="button"
           disabled={!selected.length || pending}
           onClick={() => {
-            if (!confirm(`Xóa ${selected.length} sản phẩm đã chọn?`)) return;
-            run(async () => {
-              await deleteProducts(selected);
-              setSelected([]);
-            });
+            void (async () => {
+              const ok = await ask(
+                `Xóa ${selected.length} sản phẩm đã chọn?`,
+                "Sản phẩm sẽ biến mất khỏi trang công khai.",
+              );
+              if (!ok) return;
+              run(async () => {
+                await deleteProducts(selected);
+                setSelected([]);
+                pushToast("Đã xóa sản phẩm đã chọn.");
+              });
+            })();
           }}
           className={cn(
             "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
@@ -169,9 +191,12 @@ export function ProductList({
                   <input
                     type="checkbox"
                     aria-label="Chọn tất cả"
-                    checked={rows.length > 0 && selected.length === rows.length}
+                    checked={
+                      view.rows.length > 0 &&
+                      view.rows.every((r) => selected.includes(r.id))
+                    }
                     onChange={(e) =>
-                      setSelected(e.target.checked ? rows.map((r) => r.id) : [])
+                      setSelected(e.target.checked ? view.rows.map((r) => r.id) : [])
                     }
                   />
                 </th>
@@ -184,7 +209,7 @@ export function ProductList({
               </tr>
             </thead>
             <tbody>
-              {rows.map((p) => {
+              {view.rows.map((p) => {
                 const position = products.findIndex((x) => x.id === p.id) + 1;
                 const visible = p.isVisible !== false;
                 const editHref = `/admin/products/${encodeURIComponent(p.id)}`;
@@ -277,8 +302,17 @@ export function ProductList({
                           disabled={pending}
                           className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
                           onClick={() => {
-                            if (!confirm(`Xóa sản phẩm "${p.name}"?`)) return;
-                            run(() => deleteProduct(p.id));
+                            void (async () => {
+                              const ok = await ask(
+                                `Xóa sản phẩm "${p.name}"?`,
+                                "Sản phẩm sẽ biến mất khỏi trang công khai.",
+                              );
+                              if (!ok) return;
+                              run(async () => {
+                                await deleteProduct(p.id);
+                                pushToast("Đã xóa sản phẩm.");
+                              });
+                            })();
                           }}
                         >
                           <Trash2 size={14} />
@@ -289,7 +323,7 @@ export function ProductList({
                   </tr>
                 );
               })}
-              {rows.length === 0 && (
+              {view.rows.length === 0 && (
                 <tr>
                   <td
                     colSpan={7}
@@ -302,6 +336,14 @@ export function ProductList({
             </tbody>
           </table>
         </div>
+        <TablePager
+          page={view.page}
+          pageCount={view.pageCount}
+          from={view.from}
+          to={view.to}
+          total={view.total}
+          onPage={setPage}
+        />
       </AdminCard>
     </div>
   );
@@ -350,6 +392,7 @@ export function ProductForm({
   viewHref?: string;
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [form, setForm] = useState(() => ({
     ...initial,
     description: toRichHtml(initial.description),
@@ -384,6 +427,7 @@ export function ProductForm({
 
   return (
     <div>
+      {dialog}
       <AdminPageHeader
         title={isNew ? "Thêm sản phẩm" : `Sửa: ${initial.name}`}
       />
@@ -625,11 +669,18 @@ export function ProductForm({
             type="button"
             className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-red-600"
             onClick={() => {
-              if (!confirm(`Xóa sản phẩm "${initial.name}"?`)) return;
-              startTransition(async () => {
-                await deleteProduct(initial.id);
-                router.push("/admin/products");
-              });
+              void (async () => {
+                const ok = await ask(
+                  `Xóa sản phẩm "${initial.name}"?`,
+                  "Sản phẩm sẽ biến mất khỏi trang công khai.",
+                );
+                if (!ok) return;
+                startTransition(async () => {
+                  await deleteProduct(initial.id);
+                  pushToast("Đã xóa sản phẩm.");
+                  router.push("/admin/products");
+                });
+              })();
             }}
           >
             <Trash2 size={15} /> Xóa sản phẩm này
@@ -652,6 +703,7 @@ export function ProductCategoriesEditor({
   initial: CategoryRow[];
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const toRows = (list: CategoryRow[]): EditableCategoryRow[] =>
     list.map((r) => ({ ...r, originalKey: r.key, uid: r.key }));
   const [prevInitial, setPrevInitial] = useState(initial);
@@ -701,6 +753,7 @@ export function ProductCategoriesEditor({
 
   return (
     <div>
+      {dialog}
       <AdminPageHeader title="Danh mục sản phẩm" />
       <p className="mb-5 text-sm text-ink/55">
         Danh mục hiển thị trên menu header, trang /san-pham và bộ lọc trang chủ.
@@ -855,9 +908,13 @@ export function ProductCategoriesEditor({
                       setMoveTo(rows.find((x) => x.uid !== row.uid)?.uid ?? "");
                       return;
                     }
-                    if (window.confirm(`Xóa danh mục ${row.name || row.key}?`)) {
-                      removeRow(row, "");
-                    }
+                    void (async () => {
+                      const ok = await ask(
+                        `Xóa danh mục ${row.name || row.key}?`,
+                        "Danh mục trống sẽ bị gỡ khi bạn bấm lưu.",
+                      );
+                      if (ok) removeRow(row, "");
+                    })();
                   }}
                 >
                   Xóa danh mục

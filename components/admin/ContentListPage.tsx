@@ -6,6 +6,9 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { AdminCard } from "@/components/admin/AdminChrome";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { paginate, TablePager } from "@/components/admin/TablePager";
+import { pushToast } from "@/components/admin/toast";
 import {
   deletePost,
   togglePostFlag,
@@ -70,34 +73,56 @@ export function ContentListPage({
   rows: ContentRow[];
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [q, setQ] = useState("");
+  const [visibility, setVisibility] = useState<"all" | "on" | "off">("all");
   const [selected, setSelected] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [listKey, setListKey] = useState("");
 
   const filtered = useMemo(() => {
     const key = q.trim().toLowerCase();
     const list = [...rows].sort(
       (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
     );
-    if (!key) return list;
-    return list.filter(
-      (r) =>
+    return list.filter((r) => {
+      const visible = r.isVisible ?? r.status === "PUBLISHED";
+      const matchesVisibility =
+        visibility === "all" || (visibility === "on" ? visible : !visible);
+      const matchesQuery =
+        !key ||
         r.title.toLowerCase().includes(key) ||
-        r.slug.toLowerCase().includes(key),
-    );
-  }, [rows, q]);
+        r.slug.toLowerCase().includes(key);
+      return matchesVisibility && matchesQuery;
+    });
+  }, [rows, q, visibility]);
+
+  const nextKey = `${q}|${visibility}|${filtered.length}`;
+  if (listKey !== nextKey) {
+    setListKey(nextKey);
+    setPage(1);
+    setSelected([]);
+  }
+  const view = paginate(filtered, page);
 
   async function removeMany() {
     if (!selected.length) return;
-    if (!confirm(`Xóa ${selected.length} mục đã chọn?`)) return;
+    const ok = await ask(
+      `Xóa ${selected.length} mục đã chọn?`,
+      "Các bài viết này sẽ biến mất khỏi trang công khai. Thao tác không hoàn tác được.",
+    );
+    if (!ok) return;
     for (const id of selected) {
       await deletePost(id);
     }
     setSelected([]);
+    pushToast("Đã xóa các mục đã chọn.");
     router.refresh();
   }
 
   return (
     <div>
+      {dialog}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Link
           href={createHref}
@@ -121,13 +146,23 @@ export function ContentListPage({
       </div>
 
       <AdminCard title={`Danh sách ${typeLabel}`}>
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap gap-3">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Tìm kiếm nhanh"
-            className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#f59e0b]"
+            className="min-w-[220px] flex-1 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#f59e0b]"
           />
+          <select
+            aria-label="Lọc hiển thị"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value as "all" | "on" | "off")}
+            className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#f59e0b]"
+          >
+            <option value="all">Tất cả</option>
+            <option value="on">Đang hiển thị</option>
+            <option value="off">Đang ẩn</option>
+          </select>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
@@ -137,12 +172,12 @@ export function ContentListPage({
                   <input
                     type="checkbox"
                     checked={
-                      filtered.length > 0 &&
-                      selected.length === filtered.length
+                      view.rows.length > 0 &&
+                      view.rows.every((r) => selected.includes(r.id))
                     }
                     onChange={(e) =>
                       setSelected(
-                        e.target.checked ? filtered.map((r) => r.id) : [],
+                        e.target.checked ? view.rows.map((r) => r.id) : [],
                       )
                     }
                   />
@@ -157,7 +192,7 @@ export function ContentListPage({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((row) => {
+              {view.rows.map((row) => {
                 const visible =
                   row.isVisible ??
                   (row.status === "PUBLISHED");
@@ -260,8 +295,13 @@ export function ContentListPage({
                           type="button"
                           className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
                           onClick={async () => {
-                            if (!confirm("Xóa mục này?")) return;
+                            const ok = await ask(
+                              `Xóa "${row.title}"?`,
+                              "Bài viết sẽ biến mất khỏi trang công khai.",
+                            );
+                            if (!ok) return;
                             await deletePost(row.id);
+                            pushToast("Đã xóa bài viết.");
                             router.refresh();
                           }}
                         >
@@ -273,7 +313,7 @@ export function ContentListPage({
                   </tr>
                 );
               })}
-              {filtered.length === 0 && (
+              {view.rows.length === 0 && (
                 <tr>
                   <td
                     colSpan={8}
@@ -286,6 +326,14 @@ export function ContentListPage({
             </tbody>
           </table>
         </div>
+        <TablePager
+          page={view.page}
+          pageCount={view.pageCount}
+          from={view.from}
+          to={view.to}
+          total={view.total}
+          onPage={setPage}
+        />
       </AdminCard>
     </div>
   );

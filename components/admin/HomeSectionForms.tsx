@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AdminCard, AdminPageHeader } from "@/components/admin/AdminChrome";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { ImageDropzone } from "@/components/admin/BrandAssetForm";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { Button } from "@/components/ui/button";
@@ -729,6 +730,7 @@ export function PageArticleEditor({
 }) {
   const config = PAGE_ARTICLE_CONFIG[page];
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [article, setArticle] = useState<AboutArticle>(() => ({
     ...initial,
     content: toRichHtml(initial.content),
@@ -754,6 +756,7 @@ export function PageArticleEditor({
 
   return (
     <div>
+      {dialog}
       <AdminPageHeader title={config.title} />
       <p className="mb-5 text-sm text-ink/55">
         Bài viết hiển thị tại trang{" "}
@@ -802,8 +805,8 @@ export function PageArticleEditor({
                   type="button"
                   disabled={pending}
                   className="text-xs font-semibold text-red-600 disabled:opacity-50"
-                  onClick={() => {
-                    if (!window.confirm(`Xóa toàn bộ nội dung ${config.noun}?`)) return;
+                  onClick={async () => {
+                    if (!(await ask(`Xóa toàn bộ nội dung ${config.noun}?`, "Nội dung hiện tại sẽ bị xóa khi lưu."))) return;
                     const next = { ...article, content: "" };
                     setArticle(next);
                     setEditorKey((k) => k + 1);
@@ -816,8 +819,8 @@ export function PageArticleEditor({
                   type="button"
                   disabled={pending}
                   className="text-xs font-semibold text-ink/60 hover:text-ink disabled:opacity-50"
-                  onClick={() => {
-                    if (!window.confirm(`Khôi phục nội dung mặc định cho ${config.noun}?`)) return;
+                  onClick={async () => {
+                    if (!(await ask(`Khôi phục nội dung mặc định cho ${config.noun}?`, "Nội dung đang soạn sẽ được thay bằng bản mặc định.", "Khôi phục"))) return;
                     const next = { ...config.defaults(), imageUrl: article.imageUrl };
                     setArticle(next);
                     setEditorKey((k) => k + 1);
