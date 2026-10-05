@@ -43,9 +43,7 @@ export function ServiceCards({
                 className="object-cover transition duration-[1400ms] ease-out group-hover:scale-105"
                 sizes="(max-width:768px) 100vw, 50vw"
               />
-              {/* Default: light bottom fade — full dark only on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-ink/0 transition duration-1000 ease-in-out group-hover:bg-ink/75" />
+              <div className="absolute inset-0 bg-black/60 transition duration-700 ease-in-out group-hover:bg-black/75" />
               <div className="service-card-content absolute inset-0 p-6 md:p-8">
                 <div className="flex flex-col items-start [grid-area:2/2]">
                   <h3 className="font-display text-2xl font-bold text-paper md:text-3xl">

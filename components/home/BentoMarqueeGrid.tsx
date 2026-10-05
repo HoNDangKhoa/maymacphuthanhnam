@@ -16,21 +16,14 @@ type GalleryItem = {
 function MarqueeRow({
   items,
   direction,
-  size,
   onOpen,
 }: {
   items: GalleryItem[];
   direction: "ltr" | "rtl";
-  size: "sm" | "md" | "lg";
   onOpen: (item: GalleryItem) => void;
 }) {
   const loop = [...items, ...items];
-  const dims =
-    size === "lg"
-      ? "h-48 w-72 md:h-56 md:w-[22rem]"
-      : size === "md"
-        ? "h-40 w-64 md:h-48 md:w-80"
-        : "h-36 w-56 md:h-44 md:w-72";
+  const dims = "h-48 w-72 md:h-56 md:w-[22rem]";
 
   return (
     <div
@@ -98,24 +91,9 @@ export function BentoMarqueeGrid({
       </div>
 
       <div className="marquee-pause-on-hover mt-12 space-y-4">
-        <MarqueeRow
-          items={rowA}
-          direction="ltr"
-          size="lg"
-          onOpen={setLightbox}
-        />
-        <MarqueeRow
-          items={rowB}
-          direction="rtl"
-          size="md"
-          onOpen={setLightbox}
-        />
-        <MarqueeRow
-          items={rowC}
-          direction="ltr"
-          size="sm"
-          onOpen={setLightbox}
-        />
+        <MarqueeRow items={rowA} direction="ltr" onOpen={setLightbox} />
+        <MarqueeRow items={rowB} direction="rtl" onOpen={setLightbox} />
+        <MarqueeRow items={rowC} direction="ltr" onOpen={setLightbox} />
       </div>
 
       {lightbox && (
